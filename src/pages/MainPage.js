@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useEffect, useState } from 'react';
-import { PlusCircle, List, Moon, Sun } from 'lucide-react';
+import { PlusCircle, List, Moon, Sun, Code } from 'lucide-react';
 import { useTheme } from '../utils/ThemeProvider';
 import { Link, useNavigate } from 'react-router-dom';
 import MainBanner from '../components/MainBanner';
@@ -106,11 +106,10 @@ const MainPage = () => {
             <MainBanner nickname={userInfo.nickname} />
           </section>
 
-
-          <div className="grid sm:grid-cols-2 gap-8 sm:gap-12">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12">
             <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-md p-8 flex flex-col items-center justify-center transition duration-300 ease-in-out hover:shadow-lg">
               <PlusCircle className="w-20 h-20 text-blue-500 dark:text-blue-400 mb-6" />
-              <h3 className="text-2xl font-semibold text-blue-800 dark:text-blue-300 mb-4">새 AI 면접 템플릿 생성</h3>
+              <h3 className="text-2xl font-semibold text-blue-800 dark:text-blue-300 mb-4">AI 면접 템플릿 생성</h3>
               <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-6">맞춤형 면접 템플릿을 만들어 연습을 시작하세요.</p>
               <button
                 onClick={() => handleRedirectNeedsLogin("/interview/template")}
@@ -118,20 +117,28 @@ const MainPage = () => {
               >
                 템플릿 생성하기
               </button>
-
             </div>
 
             <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-md p-8 flex flex-col items-center justify-center transition duration-300 ease-in-out hover:shadow-lg">
               <List className="w-20 h-20 text-blue-500 dark:text-blue-400 mb-6" />
               <h3 className="text-2xl font-semibold text-blue-800 dark:text-blue-300 mb-4">이전 면접 템플릿 보기</h3>
               <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-6">이전에 생성한 템플릿을 확인하고 복습하세요.</p>
-
               <button
                 onClick={() => handleRedirectNeedsLogin("/interview/list")}
                 className="bg-blue-500 text-white px-8 py-3 text-lg rounded-full hover:bg-blue-600 transition duration-300 ease-in-out">
                 템플릿 목록 보기
               </button>
+            </div>
 
+            <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-md p-8 flex flex-col items-center justify-center transition duration-300 ease-in-out hover:shadow-lg">
+              <Code className="w-20 h-20 text-blue-500 dark:text-blue-400 mb-6" />
+              <h3 className="text-2xl font-semibold text-blue-800 dark:text-blue-300 mb-4">AI 코드리뷰 시작하기</h3>
+              <p className="text-lg text-gray-600 dark:text-gray-400 text-center mb-6">AI를 통해 Github PR에 대한 피드백을 받아보세요.</p>
+              <button
+                onClick={() => handleRedirectNeedsLogin("/code-review")}
+                className="bg-blue-500 text-white px-8 py-3 text-lg rounded-full hover:bg-blue-600 transition duration-300 ease-in-out">
+                코드리뷰 시작
+              </button>
             </div>
           </div>
         </main>
