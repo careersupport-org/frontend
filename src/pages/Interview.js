@@ -1,14 +1,12 @@
 /* eslint-disable */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, User, Bot, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../utils/ThemeProvider';
+import { Send, User, Bot } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import InterviewApiService from "../services/InterviewService"
 import UnAuthorizedError from "../errors/UnAuthorizedErrors";
 import UserApiService from '../services/UserAPIService';
 
 const InterviewChatPage = () => {
-  const { darkMode, toggleDarkMode } = useTheme();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,18 +28,13 @@ const InterviewChatPage = () => {
   const executeAIMessage = (data) => {
     setMessages(prev => {
       const lastInterviewerIndex = prev.findLastIndex(msg => msg.sender === 'INTERVIEWER');
-
-      // 배열 데이터 처리: 쉼표 제거 및 공백 정리
       const cleanedData = data.join('')
 
       if (lastInterviewerIndex === -1) {
-        // INTERVIEWER 메시지가 없는 경우, 새 메시지 추가
         return [...prev, { sender: 'INTERVIEWER', content: cleanedData }];
       } else {
-        // 마지막 INTERVIEWER 메시지에 새 데이터 추가
         const updatedMessages = [...prev];
         const lastContent = updatedMessages[lastInterviewerIndex].content;
-
         updatedMessages[lastInterviewerIndex] = {
           ...updatedMessages[lastInterviewerIndex],
           content: `${lastContent}${cleanedData}`
@@ -61,7 +54,6 @@ const InterviewChatPage = () => {
       setCursor(response.cursor);
       setHasMore(response.cursor !== null);
 
-      // 메시지가 없고 cursor가 null이면 인터뷰 시작
       if (response.data.length === 0 && response.cursor === null) {
         await startInterview();
       }
@@ -141,7 +133,6 @@ const InterviewChatPage = () => {
       let aiMessage = { sender: 'INTERVIEWER', content: '' };
       setMessages(prev => [...prev, aiMessage]);
 
-
       try {
         await InterviewApiService.sendAnswer(
           templateId,
@@ -165,17 +156,12 @@ const InterviewChatPage = () => {
       }
     }
   };
+
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow py-4 px-4">
+    <div className="flex flex-col h-screen bg-gray-900">
+      <header className="bg-gray-800 shadow py-4 px-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{interviewTheme}을/를 주제로 모의면접이 진행중입니다.</h1>
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-          >
-            {darkMode ? <Sun size={24} /> : <Moon size={24} />}
-          </button>
+          <h1 className="text-2xl font-bold text-white">{interviewTheme}을/를 주제로 모의면접이 진행중입니다.</h1>
         </div>
       </header>
 
@@ -185,14 +171,14 @@ const InterviewChatPage = () => {
         onScroll={handleScroll}
       >
         <div className="max-w-4xl mx-auto space-y-4">
-          {isLoading && cursor && <div className="text-center">메시지를 불러오는 중...</div>}
+          {isLoading && cursor && <div className="text-center text-white">메시지를 불러오는 중...</div>}
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.sender === 'USER' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex items-start space-x-2 max-w-[70%] ${message.sender === 'USER' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                <div className={`p-2 rounded-full ${message.sender === 'USER' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-700'}`}>
-                  {message.sender === 'USER' ? <User size={24} className="text-white" /> : <Bot size={24} className="text-gray-700 dark:text-gray-300" />}
+                <div className={`p-2 rounded-full ${message.sender === 'USER' ? 'bg-blue-500' : 'bg-gray-700'}`}>
+                  {message.sender === 'USER' ? <User size={24} className="text-white" /> : <Bot size={24} className="text-gray-300" />}
                 </div>
-                <div className={`p-3 rounded-lg ${message.sender === 'USER' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'}`}>
+                <div className={`p-3 rounded-lg ${message.sender === 'USER' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-white'}`}>
                   {message.content}
                 </div>
               </div>
@@ -202,14 +188,14 @@ const InterviewChatPage = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSend} className="bg-white dark:bg-gray-800 p-4 shadow-lg">
+      <form onSubmit={handleSend} className="bg-gray-800 p-4 shadow-lg">
         <div className="max-w-4xl mx-auto flex items-center space-x-4">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="답변을 입력하세요..."
-            className="flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="flex-1 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white"
             disabled={isLoading}
           />
           <button
