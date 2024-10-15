@@ -121,7 +121,7 @@ const MainPage = () => {
               <h3 className="text-2xl font-semibold text-blue-300 mb-4">AI 코드리뷰 시작하기</h3>
               <p className="text-lg text-gray-400 text-center mb-6">AI를 통해 Github에 업로드한 코드를 리뷰 받아보세요.</p>
               <button
-                onClick={() => handleRedirectNeedsLogin("/code-review")}
+                onClick={() => handleRedirectNeedsLogin("/code-review/introduce")}
                 className="bg-blue-500 text-white px-8 py-3 text-lg rounded-full hover:bg-blue-600 transition duration-300 ease-in-out">
                 코드리뷰 시작
               </button>
