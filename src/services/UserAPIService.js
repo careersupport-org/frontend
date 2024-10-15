@@ -1,7 +1,7 @@
 /* eslint-disable */
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/users';
+const API_BASE_URL = window.location.origin + '/api/users';
 
 
 const UserApiService = {
