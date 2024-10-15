@@ -48,6 +48,14 @@ const UserApiService = {
         } catch (error) {
             throw error;
         }
+    },
+    async generateApiToken() {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api-token`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 
 

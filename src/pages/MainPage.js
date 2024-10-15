@@ -4,6 +4,7 @@ import { PlusCircle, List, Code } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import MainBanner from '../components/MainBanner';
 import UserApiService from '../services/UserAPIService';
+import UnAuthorizedError from "../errors/UnAuthorizedErrors";
 
 const MainPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,37 +13,29 @@ const MainPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = localStorage.getItem('accessToken');
-
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-      UserApiService.setToken(token);
-      try {
-        const userData = await UserApiService.getUserInfo();
-        setIsLoggedIn(true);
-        setUserInfo(userData);
-      } catch (error) {
-        setIsLoggedIn(false);
-        localStorage.removeItem('accessToken');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkLoginStatus();
   }, []);
 
-  const handleLogout = async () => {
+  const checkLoginStatus = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+    UserApiService.setToken(token);
     try {
-      setIsLoggedIn(false);
-      setUserInfo({ nickname: "익명의 개발자" });
-      localStorage.removeItem('accessToken');
+      const userData = await UserApiService.getUserInfo();
+      setIsLoggedIn(true);
+      setUserInfo(userData);
     } catch (error) {
+      if (error instanceof UnAuthorizedError) {
+        UserApiService.logout();
+        navigate("/login");
+      }
+      setIsLoggedIn(false);
     } finally {
-      navigate('/');
+      setIsLoading(false);
     }
   };
 
@@ -55,11 +48,11 @@ const MainPage = () => {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-gray-900 p-4 sm:p-8"></div>
+    return <div className="min-h-screen bg-gray-900 p-4 sm:p-8 transition-colors duration-200"></div>
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4 sm:p-8">
+    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <header className="flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-16 space-y-4 sm:space-y-0">
           <div className="flex items-center justify-center sm:justify-start w-full sm:w-auto">
@@ -71,12 +64,12 @@ const MainPage = () => {
           </div>
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 text-lg rounded-full transition duration-300 ease-in-out"
+              <Link
+                to="/mypage"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 text-lg rounded-full transition duration-300 ease-in-out"
               >
-                로그아웃
-              </button>
+                마이페이지
+              </Link>
             ) : (
               <Link to="/login">
                 <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 text-lg rounded-full transition duration-300 ease-in-out">
@@ -119,7 +112,7 @@ const MainPage = () => {
             <div className="bg-gray-800 border border-blue-700 rounded-lg shadow-md p-8 flex flex-col items-center justify-center transition duration-300 ease-in-out hover:shadow-lg">
               <Code className="w-20 h-20 text-blue-400 mb-6" />
               <h3 className="text-2xl font-semibold text-blue-300 mb-4">AI 코드리뷰 시작하기</h3>
-              <p className="text-lg text-gray-400 text-center mb-6">AI를 통해 Github에 업로드한 코드를 리뷰 받아보세요.</p>
+              <p className="text-lg text-gray-400 text-center mb-6">AI를 통해 코드를 리뷰받고 개선해보세요.</p>
               <button
                 onClick={() => handleRedirectNeedsLogin("/code-review/introduce")}
                 className="bg-blue-500 text-white px-8 py-3 text-lg rounded-full hover:bg-blue-600 transition duration-300 ease-in-out">

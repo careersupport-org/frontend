@@ -8,6 +8,7 @@ import InterviewTemplatePage from "./pages/InterviewTemplate";
 import InterviewChatPage from "./pages/Interview";
 import InterviewTemplateListPage from "./pages/TemplateList";
 import CodeReviewIntoducePage from "./pages/CodeReviewIntroducePage";
+import MyPage from "./pages/MyPage";
 function App() {
   return (
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/interview/chat" element={<InterviewChatPage />} />
         <Route path="/interview/list" element={<InterviewTemplateListPage />} />
         <Route path="/code-review/introduce" element={<CodeReviewIntoducePage />} />
+        <Route path="/mypage" element={<MyPage />} />
       </Route>
     </Routes>
 
