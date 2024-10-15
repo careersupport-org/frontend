@@ -31,7 +31,6 @@ const MainPage = () => {
     } catch (error) {
       if (error instanceof UnAuthorizedError) {
         UserApiService.logout();
-        navigate("/login");
       }
       setIsLoggedIn(false);
     } finally {
