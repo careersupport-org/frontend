@@ -5,6 +5,8 @@ import InterviewApiService from '../services/InterviewService';
 import { useNavigate } from 'react-router-dom';
 import UnAuthorizedError from "../errors/UnAuthorizedErrors";
 import UserApiService from '../services/UserAPIService';
+import { PulseLoader } from "react-spinners";
+
 
 const InterviewTemplateListPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -54,7 +56,7 @@ const InterviewTemplateListPage = () => {
           <h1 className="text-3xl font-bold text-white">면접 템플릿 목록</h1>
         </div>
 
-        {isLoading && <p className="text-center text-white">로딩 중...</p>}
+        {isLoading && <p className="text-center text-white"><PulseLoader color="#FFFFFF" size={10} /></p>}
 
         {!isLoading && (
           <div className="bg-gray-800 shadow overflow-hidden sm:rounded-md">
