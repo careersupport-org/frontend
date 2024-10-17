@@ -46,7 +46,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Code Review Bot
-        uses: minturtle/careersupport-code-review-bot@v1.0.5
+        uses: careersupport-org/code-review-bot@v1.0.0
         with:
           github-token: \${{ secrets.GITHUB_TOKEN }}
           career-support-api-token: \${{ secrets.CAREER_SUPPORT_API_TOKEN }}
@@ -127,7 +127,7 @@ jobs:
                         <h2 className="text-xl font-semibold text-white mb-4">Step 3: Github Actions 설정</h2>
                         <p className="text-gray-300 mb-4">
                             아래의 YAML 파일을 복사하여 GitHub 저장소의 <code>.github/workflows</code> 디렉토리에
-                             <code>ai-code-review.yml</code> 파일로 저장하세요.
+                            <code>ai-code-review.yml</code> 파일로 저장하세요.
                         </p>
                         {githubActionsYaml && (
                             <div className="relative mb-4">
