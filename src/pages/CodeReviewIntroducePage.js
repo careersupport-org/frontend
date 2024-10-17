@@ -46,7 +46,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Code Review Bot
-        uses: careersupport-org/code-review-bot@v1.0.0
+        uses: careersupport-org/code-review-bot@v1.0.1
         with:
           github-token: \${{ secrets.GITHUB_TOKEN }}
           career-support-api-token: \${{ secrets.CAREER_SUPPORT_API_TOKEN }}
