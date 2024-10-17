@@ -46,9 +46,9 @@ jobs:
           -H "Content-Type: application/json" \\
           -H "Authenticate: \${{ secrets.CAREER_SUPPORT_API_TOKEN }}" \\
           -d '{
-            "token": "\${{ secrets.GITHUB_TOKEN }}",
-            "repository": "\${{ github.repository }}", 
-            "pr_number": "\${{ github.event.pull_request.number || github.event.number }}", 
+            "githubToken": "\${{ secrets.GITHUB_TOKEN }}",
+            "repositoryName": "\${{ github.repository }}", 
+            "prNumber": "\${{ github.event.pull_request.number || github.event.number }}", 
           }'
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
