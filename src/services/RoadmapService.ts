@@ -12,10 +12,19 @@ export interface StepDetail {
   content: string;
 }
 
+export interface RoadMapPreview {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface RoadMap {
   id: string;
   title: string;
   steps: RoadMapStep[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 class RoadMapService {
@@ -35,6 +44,7 @@ class RoadMapService {
 
   public async createRoadMap(job: string, etc: string): Promise<string> {
     const id = crypto.randomUUID().toString();
+    const now = new Date().toISOString();
     const roadMap: RoadMap = {
       id,
       title: `${job}의 로드맵`,
@@ -80,6 +90,8 @@ class RoadMapService {
           subRoadMapId: null
         },
       ],
+      createdAt: now,
+      updatedAt: now,
     };
     
     this.roadMaps.set(id, roadMap);
@@ -136,6 +148,7 @@ class RoadMapService {
   public async update(roadMap: RoadMap): Promise<void> {
     // 실제 API 연동 시에는 여기에 API 호출 코드가 들어갑니다.
     // 현재는 메모리 내 데이터만 업데이트합니다.
+    roadMap.updatedAt = new Date().toISOString();
     this.roadMaps.set(roadMap.id, roadMap);
   }
 
@@ -184,6 +197,7 @@ class RoadMapService {
   public async createSubRoadMap(stepId: string): Promise<string> {
     // 임시로 stepId 기반의 서브 로드맵 생성
     const id = crypto.randomUUID().toString();
+    const now = new Date().toISOString();
     const subRoadMap: RoadMap = {
       id,
       title: `서브 로드맵 for step ${stepId}`,
@@ -196,10 +210,23 @@ class RoadMapService {
           tags: ['서브', '예시'],
           subRoadMapId: null
         }
-      ]
+      ],
+      createdAt: now,
+      updatedAt: now,
     };
     this.roadMaps.set(id, subRoadMap);
     return id;
+  }
+
+  public async getMyRoadMaps(): Promise<RoadMapPreview[]> {
+    return Promise.resolve([
+      {
+        id: "test1234",
+        title: "테스트 로드맵",
+        createdAt: "2024-04-03",
+        updatedAt: "2025-04-02",
+      }
+    ]);
   }
 }
 
