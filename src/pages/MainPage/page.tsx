@@ -2,17 +2,18 @@ import Header from "../../components/Header";
 import MainBanner from "./components/MainBanner";
 import Footer from "../../components/Footer";
 import DescriptionCard from "./components/DescriptionCard";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function MainPage() {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-[#17171C] text-white font-sans">
       {/* 상단 네비게이션 */}
-
-            <div className="pl-32 pr-32">
             <Header />
+            <div className="px-32">
             {/* 중앙 코드 스타일 박스 */}
             <div className="mx-4 md:mx-16 mt-6">
-                <MainBanner nickname="익명의 개발자"/>
+                <MainBanner nickname={user?.nickname || "익명의 개발자"}/>
             </div>
 
             {/* 하단 카드 */}
