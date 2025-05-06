@@ -126,6 +126,18 @@ class RoadMapService {
 
     return stream;
   }
+
+  public async update(roadMap: RoadMap): Promise<void> {
+    // 실제 API 연동 시에는 여기에 API 호출 코드가 들어갑니다.
+    // 현재는 메모리 내 데이터만 업데이트합니다.
+    this.roadMaps.set(roadMap.id, roadMap);
+  }
+
+  public async isSubRoadmapExists(stepId: string): Promise<string | null> {
+    // TODO: 실제 API 연동 시 서버에서 서브 로드맵 ID 확인
+    // 현재는 임시로 랜덤하게 ID 또는 null 반환
+    return Math.random() > 0.5 ? crypto.randomUUID().toString() : null;
+  }
 }
 
 export default RoadMapService;

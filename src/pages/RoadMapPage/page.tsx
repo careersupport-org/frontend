@@ -11,6 +11,12 @@ export default function RoadMapPage() {
   const [selectedStep, setSelectedStep] = useState<RoadMapStep | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingStep, setEditingStep] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    tags: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -87,6 +93,53 @@ export default function RoadMapPage() {
     setRoadMap(prev => prev ? { ...prev, steps: [...prev.steps, newStep] } : null);
   };
 
+  const handleStepEdit = (step: RoadMapStep) => {
+    setEditingStep({
+      id: step.id,
+      title: step.title,
+      description: step.description,
+      tags: step.tags.join(', ')
+    });
+  };
+
+  const handleStepSave = () => {
+    if (!editingStep || !roadMap) return;
+
+    const updatedSteps = roadMap.steps.map(step => {
+      if (step.id === editingStep.id) {
+        return {
+          ...step,
+          title: editingStep.title,
+          description: editingStep.description,
+          tags: editingStep.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        };
+      }
+      return step;
+    });
+
+    setRoadMap(prev => prev ? { ...prev, steps: updatedSteps } : null);
+    setEditingStep(null);
+  };
+
+  const handleStepCancel = () => {
+    setEditingStep(null);
+  };
+
+  const handleEditModeToggle = async () => {
+    if (isEditMode && roadMap) {
+      try {
+        await RoadMapService.getInstance().update(roadMap);
+        setIsEditMode(false);
+        setEditingStep(null);
+      } catch (err) {
+        console.error('Failed to update roadmap:', err);
+        // 에러 처리 로직 추가 가능
+      }
+    } else {
+      setIsEditMode(true);
+    }
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-[#1A1A20] text-white p-8">
@@ -107,15 +160,14 @@ export default function RoadMapPage() {
   }
 
   return (
-
     <div className="min-h-screen bg-[#1A1A20] text-white">
-        <Header />
+      <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#5AC8FA]">{roadMap.title}</h1>
           <div className="flex gap-4">
             <button
-              onClick={() => setIsEditMode(!isEditMode)}
+              onClick={handleEditModeToggle}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 isEditMode
                   ? 'bg-[#5AC8FA] text-[#1A1A20]'
@@ -148,59 +200,127 @@ export default function RoadMapPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-2">
                     <span className="text-2xl font-bold text-[#5AC8FA]">Step {step.step}</span>
-                    <h3 className="text-xl font-semibold text-[#E0E0E6]">{step.title}</h3>
+                    {editingStep?.id === step.id ? (
+                      <input
+                        type="text"
+                        value={editingStep.title}
+                        onChange={(e) => setEditingStep(prev => prev ? { ...prev, title: e.target.value } : null)}
+                        className="flex-1 bg-[#1A1A20] text-[#E0E0E6] text-xl font-semibold px-3 py-1 rounded"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <h3 className="text-xl font-semibold text-[#E0E0E6]">{step.title}</h3>
+                    )}
                   </div>
-                  <p className="text-[#A0A0B0] mb-4">{step.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {step.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-[#1A1A20] text-[#5AC8FA] rounded-full text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {editingStep?.id === step.id ? (
+                    <textarea
+                      value={editingStep.description}
+                      onChange={(e) => setEditingStep(prev => prev ? { ...prev, description: e.target.value } : null)}
+                      className="w-full bg-[#1A1A20] text-[#A0A0B0] mb-4 px-3 py-2 rounded resize-none"
+                      rows={3}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <p className="text-[#A0A0B0] mb-4">{step.description}</p>
+                  )}
+                  {editingStep?.id === step.id ? (
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        value={editingStep.tags}
+                        onChange={(e) => setEditingStep(prev => prev ? { ...prev, tags: e.target.value } : null)}
+                        placeholder="태그를 쉼표로 구분하여 입력하세요"
+                        className="w-full bg-[#1A1A20] text-[#5AC8FA] px-3 py-2 rounded"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <p className="text-sm text-[#A0A0B0] mt-1">쉼표(,)로 구분하여 입력하세요</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {step.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 bg-[#1A1A20] text-[#5AC8FA] rounded-full text-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {isEditMode && (
                   <div className="flex gap-2 ml-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleStepMove(step.id, 'up');
-                      }}
-                      disabled={index === 0}
-                      className={`p-2 rounded-lg ${
-                        index === 0
-                          ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
-                          : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
-                      }`}
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleStepMove(step.id, 'down');
-                      }}
-                      disabled={index === roadMap.steps.length - 1}
-                      className={`p-2 rounded-lg ${
-                        index === roadMap.steps.length - 1
-                          ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
-                          : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
-                      }`}
-                    >
-                      ↓
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleStepRemove(step.id);
-                      }}
-                      className="p-2 bg-[#1A1A20] text-red-500 rounded-lg hover:bg-[#2A2A32]"
-                    >
-                      ×
-                    </button>
+                    {editingStep?.id === step.id ? (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepSave();
+                          }}
+                          className="p-2 bg-[#1A1A20] text-green-500 rounded-lg hover:bg-[#2A2A32]"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepCancel();
+                          }}
+                          className="p-2 bg-[#1A1A20] text-[#5AC8FA] rounded-lg hover:bg-[#2A2A32]"
+                        >
+                          ✕
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepEdit(step);
+                          }}
+                          className="p-2 bg-[#1A1A20] text-[#5AC8FA] rounded-lg hover:bg-[#2A2A32]"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepMove(step.id, 'up');
+                          }}
+                          disabled={index === 0}
+                          className={`p-2 rounded-lg ${
+                            index === 0
+                              ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
+                              : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
+                          }`}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepMove(step.id, 'down');
+                          }}
+                          disabled={index === roadMap.steps.length - 1}
+                          className={`p-2 rounded-lg ${
+                            index === roadMap.steps.length - 1
+                              ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
+                              : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
+                          }`}
+                        >
+                          ↓
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStepRemove(step.id);
+                          }}
+                          className="p-2 bg-[#1A1A20] text-red-500 rounded-lg hover:bg-[#2A2A32]"
+                        >
+                          ×
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -215,9 +335,7 @@ export default function RoadMapPage() {
           onClose={() => setSelectedStep(null)}
         />
       )}
-    <Footer />
+      <Footer />
     </div>
-
-
   );
 }

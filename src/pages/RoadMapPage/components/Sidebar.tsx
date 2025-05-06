@@ -9,12 +9,34 @@ interface SidebarProps {
 
 export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
+  const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
+  const [subRoadmapId, setSubRoadmapId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!selectedStep) return;
 
-    let isCurrentStep = true; // 현재 선택된 Step을 추적하는 플래그
-    setDetails([]); // 새로운 step이 선택되면 details 초기화
+    let isCurrentStep = true;
+    setDetails([]);
+    setSubRoadmapId(null);
+    setIsLoading(true);
+
+    const checkSubRoadmap = async () => {
+      try {
+        const id = await RoadMapService.getInstance().isSubRoadmapExists(selectedStep.id);
+        if (isCurrentStep) {
+          setSubRoadmapId(id);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to check sub roadmap:', error);
+        if (isCurrentStep) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    checkSubRoadmap();
 
     const fetchDetails = async () => {
       const stream = await RoadMapService.getInstance().getStepDetail(selectedStep.id);
@@ -25,10 +47,8 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          // 이전 Step이 아닌 경우에만 상태 업데이트
           if (!isCurrentStep) break;
 
-          // SSE 형식의 데이터 파싱
           const text = new TextDecoder().decode(value);
           const lines = text.split('\n');
           
@@ -54,11 +74,31 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
 
     fetchDetails();
 
-    // cleanup 함수: 새로운 Step이 선택되면 이전 작업 취소
     return () => {
       isCurrentStep = false;
     };
   }, [selectedStep]);
+
+  const handleCreateSubRoadmap = async () => {
+    if (!selectedStep) return;
+    
+    setIsCreatingSubRoadmap(true);
+    try {
+      // TODO: 서브 로드맵 생성 API 호출
+      // const newSubRoadmapId = await RoadMapService.getInstance().createSubRoadmap(selectedStep.id);
+      // 생성 후 해당 서브 로드맵 페이지로 이동
+      // window.location.href = `/roadmap/${newSubRoadmapId}`;
+    } catch (error) {
+      console.error('Failed to create sub roadmap:', error);
+    } finally {
+      setIsCreatingSubRoadmap(false);
+    }
+  };
+
+  const handleNavigateToSubRoadmap = () => {
+    if (!subRoadmapId) return;
+    window.location.href = `/roadmap/${subRoadmapId}`;
+  };
 
   if (!selectedStep) return null;
 
@@ -121,6 +161,53 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
                   <span>유용한 링크</span>
                 </li>
               </ul>
+            </div>
+            <div className="border-t border-[#3A3A42] pt-6">
+              {isLoading ? (
+                <div className="w-full py-3 px-4 rounded-lg bg-[#2A2A32] text-[#3A3A42] flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                </div>
+              ) : subRoadmapId ? (
+                <button
+                  onClick={handleNavigateToSubRoadmap}
+                  className="w-full py-3 px-4 rounded-lg bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>서브 로드맵으로 이동</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleCreateSubRoadmap}
+                  disabled={isCreatingSubRoadmap}
+                  className={`w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${
+                    isCreatingSubRoadmap
+                      ? 'bg-[#2A2A32] text-[#3A3A42] cursor-not-allowed'
+                      : 'bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA]'
+                  }`}
+                >
+                  {isCreatingSubRoadmap ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>서브 로드맵 생성 중...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>서브 로드맵 생성</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
