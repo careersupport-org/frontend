@@ -159,6 +159,27 @@ class RoadMapService {
     // 임시로 count만큼의 더미 URL 반환
     return Array.from({ length: count }, (_, i) => `https://ai-recommend.com/resource/${stepId}/${i + 1}`);
   }
+
+  public callAI(prompt: string): ReadableStream<Uint8Array> {
+    const encoder = new TextEncoder();
+    let charIndex = 0;
+    const aiAnswer = `AI의 답변입니다: ${prompt.split('').reverse().join('')}`;
+    return new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: {"content": ""}\n\n`));
+        const interval = setInterval(() => {
+          if (charIndex < aiAnswer.length) {
+            const currentContent = aiAnswer.slice(0, charIndex + 1);
+            controller.enqueue(encoder.encode(`data: {"content": "${currentContent}"}\n\n`));
+            charIndex++;
+          } else {
+            clearInterval(interval);
+            controller.close();
+          }
+        }, 500);
+      }
+    });
+  }
 }
 
 export default RoadMapService;
