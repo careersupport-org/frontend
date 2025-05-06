@@ -1,10 +1,11 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 interface DescriptionCardProps {
   onClick?: () => void;
 }
 
 const DescriptionCard: React.FC<DescriptionCardProps> = ({ onClick }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-[#1D1D22] rounded-lg shadow-lg overflow-hidden p-8 border border-[#23232A]">
       <div className="bg-[#23232A] rounded-full p-4 mb-4 flex justify-center">
@@ -30,6 +31,11 @@ const DescriptionCard: React.FC<DescriptionCardProps> = ({ onClick }) => {
       </div>
       <div className="flex justify-center">
         <button onClick={onClick} className="bg-[#5AC8FA] text-[#17171C] px-6 py-2 rounded-full font-semibold hover:bg-[#3BAFDA] transition">로드맵 생성하기</button>
+        <button
+            onClick={() => navigate("/my-roadmaps")}
+            className="bg-[#23232A] text-[#5AC8FA] px-8 py-3 text-lg rounded-full font-semibold hover:bg-[#3A3A42] border border-[#5AC8FA] transition">
+             내 로드맵 보기
+        </button>
       </div>
     </div>
   );
