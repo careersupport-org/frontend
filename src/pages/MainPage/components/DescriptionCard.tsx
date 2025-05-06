@@ -1,6 +1,10 @@
 import React from "react";
 
-const DescriptionCard: React.FC = () => {
+interface DescriptionCardProps {
+  onClick?: () => void;
+}
+
+const DescriptionCard: React.FC<DescriptionCardProps> = ({ onClick }) => {
   return (
     <div className="bg-[#1D1D22] rounded-lg shadow-lg overflow-hidden p-8 border border-[#23232A]">
       <div className="bg-[#23232A] rounded-full p-4 mb-4 flex justify-center">
@@ -17,15 +21,15 @@ const DescriptionCard: React.FC = () => {
       </div>
       <div className="font-bold text-lg mb-2 text-[#E0E0E6] text-center">AI 기반 맞춤형 로드맵 생성</div>
       <div className="text-[#A0A0B0] text-center mb-6">
-        <span>나의 현재 수준과 목표 직무를 입력하면, </span>
-        <span>AI가 성장에 필요한 역량을 분석하여<br/> </span>
+        <span>나의 현재 수준과 목표 직무를 입력하면,</span><br />
+        <span>AI가 성장에 필요한 역량을 분석하여</span><br />
         <span className="text-[#5AC8FA] font-semibold">맞춤형 개발자 로드맵</span>을 생성해줍니다.<br />
         <br />
         <span>각 단계별로 추천 강의, 논문, 책 등</span><br />
         <span className="text-[#5AC8FA] font-semibold">최적의 학습 자료</span>도 함께 안내해드립니다.
       </div>
       <div className="flex justify-center">
-        <button className="bg-[#5AC8FA] text-[#17171C] px-6 py-2 rounded-full font-semibold hover:bg-[#3BAFDA] transition">로드맵 생성하기</button>
+        <button onClick={onClick} className="bg-[#5AC8FA] text-[#17171C] px-6 py-2 rounded-full font-semibold hover:bg-[#3BAFDA] transition">로드맵 생성하기</button>
       </div>
     </div>
   );
