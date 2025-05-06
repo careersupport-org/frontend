@@ -148,6 +148,11 @@ class RoadMapService {
       'https://www.inflearn.com/course/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B8%B0%EC%B4%88-%EA%B2%8C%EC%9D%B4%ED%8A%B8-3'
     ];
   }
+
+  public async updateRecommendLearningResource(stepId: string, urls: string[]): Promise<void> {
+    // TODO: 실제 API 연동 시 서버에 저장
+    return Promise.resolve();
+  }
 }
 
 export default RoadMapService;

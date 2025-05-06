@@ -5,6 +5,76 @@ import Footer from "../../components/Footer";
 import RoadMapService, { RoadMap, RoadMapStep } from "../../services/RoadmapService";
 import Sidebar from "./components/Sidebar";
 
+// 추천 학습 자료 수정용 모달 컴포넌트
+interface EditResourceModalProps {
+  open: boolean;
+  onClose: () => void;
+  resources: string[];
+  onSave: (urls: string[]) => void;
+}
+
+const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, resources, onSave }) => {
+  const [urls, setUrls] = useState<string[]>(resources);
+  const [input, setInput] = useState('');
+
+  useEffect(() => {
+    setUrls(resources);
+  }, [resources, open]);
+
+  const handleAdd = () => {
+    if (input.trim() && !urls.includes(input.trim())) {
+      setUrls([...urls, input.trim()]);
+      setInput('');
+    }
+  };
+  const handleDelete = (idx: number) => {
+    setUrls(urls.filter((_, i) => i !== idx));
+  };
+  const handleSave = () => {
+    onSave(urls);
+    onClose();
+  };
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-[#23232A] rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 className="text-xl font-bold text-[#5AC8FA] mb-4">추천 학습 자료 수정</h3>
+        <div className="space-y-2 mb-4">
+          {urls.map((url, idx) => (
+            <div key={url + idx} className="flex items-center bg-[#1A1A20] rounded px-3 py-2 mb-1">
+              <span className="flex-1 text-[#E0E0E6] truncate">{url}</span>
+              <button className="ml-2 text-[#FA5A5A] hover:text-red-400" onClick={() => handleDelete(idx)} title="삭제">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            className="flex-1 px-3 py-2 rounded bg-[#1A1A20] text-[#E0E0E6] border border-[#3A3A42] focus:outline-none"
+            placeholder="URL 입력 후 Enter"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
+          />
+          <button
+            className="px-3 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold"
+            onClick={handleAdd}
+            type="button"
+          >추가</button>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button className="px-4 py-2 rounded bg-[#3A3A42] text-[#E0E0E6] hover:bg-[#444454]" onClick={onClose}>취소</button>
+          <button className="px-4 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold" onClick={handleSave}>저장</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function RoadMapPage() {
   const { id } = useParams<{ id: string }>();
   const [roadMap, setRoadMap] = useState<RoadMap | null>(null);
@@ -17,6 +87,10 @@ export default function RoadMapPage() {
     description: string;
     tags: string;
   } | null>(null);
+  // 추천 학습자료 관련 상태
+  const [learningResources, setLearningResources] = useState<string[]>([]);
+  const [isLoadingResources, setIsLoadingResources] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -38,6 +112,30 @@ export default function RoadMapPage() {
 
     fetchRoadMap();
   }, [id]);
+
+  // 선택된 스텝이 바뀔 때마다 추천 학습자료 fetch
+  useEffect(() => {
+    if (!selectedStep) return;
+    setIsLoadingResources(true);
+    setLearningResources([]);
+    const fetchLearningResources = async () => {
+      try {
+        const resources = await RoadMapService.getInstance().getRecommendLearningResource(selectedStep.id);
+        setLearningResources(resources);
+      } catch (error) {
+        setLearningResources([]);
+      } finally {
+        setIsLoadingResources(false);
+      }
+    };
+    fetchLearningResources();
+  }, [selectedStep]);
+
+  const handleSaveResources = async (urls: string[]) => {
+    if (!selectedStep) return;
+    await RoadMapService.getInstance().updateRecommendLearningResource(selectedStep.id, urls);
+    setLearningResources(urls);
+  };
 
   const handleStepClick = (step: RoadMapStep) => {
     if (!isEditMode) {
@@ -330,12 +428,19 @@ export default function RoadMapPage() {
         </div>
       </div>
 
-      {selectedStep && !isEditMode && (
-        <Sidebar
-          selectedStep={selectedStep}
-          onClose={() => setSelectedStep(null)}
-        />
-      )}
+      <Sidebar
+        selectedStep={selectedStep}
+        onClose={() => setSelectedStep(null)}
+        onEditResource={() => setEditModalOpen(true)}
+        learningResources={learningResources}
+        isLoadingResources={isLoadingResources}
+      />
+      <EditResourceModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        resources={learningResources}
+        onSave={handleSaveResources}
+      />
       <Footer />
     </div>
   );

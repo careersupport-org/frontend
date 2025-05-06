@@ -5,6 +5,9 @@ import RoadMapService from '../../../services/RoadmapService';
 interface SidebarProps {
   selectedStep: RoadMapStep | null;
   onClose: () => void;
+  onEditResource: () => void;
+  learningResources: string[];
+  isLoadingResources: boolean;
 }
 
 // URL 미리보기용 임시 컴포넌트
@@ -40,19 +43,15 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   );
 };
 
-export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
+export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
-  const [learningResources, setLearningResources] = useState<string[]>([]);
-  const [isLoadingResources, setIsLoadingResources] = useState(false);
 
   useEffect(() => {
     if (!selectedStep) return;
 
     let isCurrentStep = true;
     setDetails([]);
-    setLearningResources([]);
-    setIsLoadingResources(true);
 
     const fetchDetails = async () => {
       const stream = await RoadMapService.getInstance().getStepDetail(selectedStep.id);
@@ -88,23 +87,7 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
       }
     };
 
-    const fetchLearningResources = async () => {
-      try {
-        const resources = await RoadMapService.getInstance().getRecommendLearningResource(selectedStep.id);
-        if (isCurrentStep) {
-          setLearningResources(resources);
-        }
-      } catch (error) {
-        console.error('Failed to fetch learning resources:', error);
-      } finally {
-        if (isCurrentStep) {
-          setIsLoadingResources(false);
-        }
-      }
-    };
-
     fetchDetails();
-    fetchLearningResources();
 
     return () => {
       isCurrentStep = false;
@@ -178,7 +161,18 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
               </div>
             </div>
             <div className="border-t border-[#3A3A42] pt-6">
-              <h4 className="text-lg font-semibold text-[#E0E0E6] mb-4">추천 학습 자료</h4>
+              <div className="flex items-center mb-4">
+                <h4 className="text-lg font-semibold text-[#E0E0E6]">추천 학습 자료</h4>
+                <button
+                  className="ml-2 p-1 rounded hover:bg-[#2A2A32] text-[#A0A0B0] hover:text-[#5AC8FA] transition-colors"
+                  onClick={onEditResource}
+                  title="수정하기"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 00.707-.293l9.414-9.414a2 2 0 000-2.828l-3.172-3.172a2 2 0 00-2.828 0l-9.414 9.414A1 1 0 004 15.414V20z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
               {isLoadingResources ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="text-[#5AC8FA] animate-pulse">추천 학습 자료를 불러오는 중...</div>
