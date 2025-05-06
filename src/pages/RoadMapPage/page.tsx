@@ -5,6 +5,7 @@ import Footer from "../../components/Footer";
 import RoadMapService, { RoadMap, RoadMapStep } from "../../services/RoadmapService";
 import Sidebar from "./components/Sidebar";
 import AIChattingTab from "./components/AIChattingTab";
+import BookmarkTab from "./components/BookmarkTab";
 
 // 추천 학습 자료 수정용 모달 컴포넌트
 interface EditResourceModalProps {
@@ -297,8 +298,9 @@ export default function RoadMapPage() {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-row gap-8">
-          {/* 왼쪽: AI 채팅 탭 */}
-          <div className="w-96 flex-shrink-0">
+          {/* 왼쪽: BookMarkTab + AI 채팅 탭 */}
+          <div className="w-96 flex-shrink-0 flex flex-col gap-4">
+            <BookmarkTab />
             <AIChattingTab />
           </div>
           {/* 오른쪽: 기존 로드맵 컨텐츠 */}
@@ -472,6 +474,7 @@ export default function RoadMapPage() {
               onEditResource={() => setEditModalOpen(true)}
               learningResources={learningResources}
               isLoadingResources={isLoadingResources}
+              roadMapId={roadMap.id}
             />
             <EditResourceModal
               open={editModalOpen}

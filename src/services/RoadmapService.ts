@@ -12,6 +12,12 @@ export interface StepDetail {
   content: string;
 }
 
+export interface StepPreview {
+  roadMapId: string;
+  stepId: string;
+  title: string;
+}
+
 export interface RoadMapPreview {
   id: string;
   title: string;
@@ -29,11 +35,8 @@ export interface RoadMap {
 
 class RoadMapService {
   private static instance: RoadMapService;
-  private roadMaps: Map<string, RoadMap>;
 
-  private constructor() {
-    this.roadMaps = new Map();
-  }
+  private constructor() {}
 
   public static getInstance(): RoadMapService {
     if (!RoadMapService.instance) {
@@ -43,63 +46,58 @@ class RoadMapService {
   }
 
   public async createRoadMap(job: string, etc: string): Promise<string> {
-    const id = crypto.randomUUID().toString();
-    const now = new Date().toISOString();
-    const roadMap: RoadMap = {
-      id,
-      title: `${job}의 로드맵`,
-      steps: [
-        {
-          id: crypto.randomUUID().toString(),
-          step: 1,
-          title: "기초 프로그래밍 학습",
-          description: "Python, JavaScript 등 기초 문법과 알고리즘 익히기",
-          tags: ["Python", "JavaScript", "알고리즘", "자료구조"],
-          subRoadMapId: null
-        },
-        {
-          id: crypto.randomUUID().toString(),
-          step: 2,
-          title: "웹 개발 기본",
-          description: "HTML, CSS, JavaScript로 간단한 웹페이지 만들어보기",
-          tags: ["HTML", "CSS", "JavaScript", "웹 기초"],
-          subRoadMapId: "abcd1234"
-        },
-        {
-          id: crypto.randomUUID().toString(),
-          step: 3,
-          title: "프레임워크 활용",
-          description: "React, Vue 등 프론트엔드 프레임워크 학습",
-          tags: ["React", "Vue", "프론트엔드", "상태관리"],
-          subRoadMapId: null
-        },
-        {
-          id: crypto.randomUUID().toString(),
-          step: 4,
-          title: "프로젝트 및 포트폴리오",
-          description: "작은 프로젝트를 직접 만들어보고 GitHub에 정리",
-          tags: ["GitHub", "포트폴리오", "프로젝트", "협업"],
-          subRoadMapId: null
-        },
-        {
-          id: crypto.randomUUID().toString(),
-          step: 5,
-          title: "심화 학습 및 취업 준비",
-          description: "CS 지식, 코딩테스트, 면접 준비 및 최신 트렌드 학습",
-          tags: ["CS", "코딩테스트", "면접", "트렌드"],
-          subRoadMapId: null
-        },
-      ],
-      createdAt: now,
-      updatedAt: now,
-    };
-    
-    this.roadMaps.set(id, roadMap);
-    return id;
+    return Promise.resolve(crypto.randomUUID().toString());
   }
 
   public async getRoadMap(id: string): Promise<RoadMap | null> {
-    return this.roadMaps.get(id) || null;
+    return Promise.resolve({
+      id,
+      title: '테스트 로드맵',
+      steps: [
+        {
+          id: 'step1',
+          step: 1,
+          title: '기초 프로그래밍 학습',
+          description: 'Python, JavaScript 등 기초 문법과 알고리즘 익히기',
+          tags: ['Python', 'JavaScript', '알고리즘', '자료구조'],
+          subRoadMapId: null
+        },
+        {
+          id: 'step2',
+          step: 2,
+          title: '웹 개발 기본',
+          description: 'HTML, CSS, JavaScript로 간단한 웹페이지 만들어보기',
+          tags: ['HTML', 'CSS', 'JavaScript', '웹 기초'],
+          subRoadMapId: 'abcd1234'
+        },
+        {
+          id: 'step3',
+          step: 3,
+          title: '프레임워크 활용',
+          description: 'React, Vue 등 프론트엔드 프레임워크 학습',
+          tags: ['React', 'Vue', '프론트엔드', '상태관리'],
+          subRoadMapId: null
+        },
+        {
+          id: 'step4',
+          step: 4,
+          title: '프로젝트 및 포트폴리오',
+          description: '작은 프로젝트를 직접 만들어보고 GitHub에 정리',
+          tags: ['GitHub', '포트폴리오', '프로젝트', '협업'],
+          subRoadMapId: null
+        },
+        {
+          id: 'step5',
+          step: 5,
+          title: '심화 학습 및 취업 준비',
+          description: 'CS 지식, 코딩테스트, 면접 준비 및 최신 트렌드 학습',
+          tags: ['CS', '코딩테스트', '면접', '트렌드'],
+          subRoadMapId: null
+        },
+      ],
+      createdAt: '2024-04-03',
+      updatedAt: '2025-04-02',
+    });
   }
 
   public async getStepDetail(stepId: string): Promise<ReadableStream<Uint8Array>> {
@@ -146,10 +144,7 @@ class RoadMapService {
   }
 
   public async update(roadMap: RoadMap): Promise<void> {
-    // 실제 API 연동 시에는 여기에 API 호출 코드가 들어갑니다.
-    // 현재는 메모리 내 데이터만 업데이트합니다.
-    roadMap.updatedAt = new Date().toISOString();
-    this.roadMaps.set(roadMap.id, roadMap);
+    return Promise.resolve();
   }
 
   public async getRecommendLearningResource(stepId: string): Promise<string[]> {
@@ -195,27 +190,7 @@ class RoadMapService {
   }
 
   public async createSubRoadMap(stepId: string): Promise<string> {
-    // 임시로 stepId 기반의 서브 로드맵 생성
-    const id = crypto.randomUUID().toString();
-    const now = new Date().toISOString();
-    const subRoadMap: RoadMap = {
-      id,
-      title: `서브 로드맵 for step ${stepId}`,
-      steps: [
-        {
-          id: crypto.randomUUID().toString(),
-          step: 1,
-          title: '서브 단계 1',
-          description: '서브 로드맵의 첫 단계입니다.',
-          tags: ['서브', '예시'],
-          subRoadMapId: null
-        }
-      ],
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.roadMaps.set(id, subRoadMap);
-    return id;
+    return Promise.resolve(crypto.randomUUID().toString());
   }
 
   public async getMyRoadMaps(): Promise<RoadMapPreview[]> {
@@ -225,6 +200,22 @@ class RoadMapService {
         title: "테스트 로드맵",
         createdAt: "2024-04-03",
         updatedAt: "2025-04-02",
+      }
+    ]);
+  }
+
+  public async getBookMarks(): Promise<StepPreview[]> {
+    // TODO: 실제 API 연동 시 사용자의 북마크 목록을 반환
+    return Promise.resolve([
+      {
+        roadMapId: "test1234",
+        stepId: "step1",
+        title: "기초 프로그래밍 학습"
+      },
+      {
+        roadMapId: "test1234",
+        stepId: "step2",
+        title: "웹 개발 기본"
       }
     ]);
   }

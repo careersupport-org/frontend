@@ -9,6 +9,7 @@ interface SidebarProps {
   onEditResource: () => void;
   learningResources: string[];
   isLoadingResources: boolean;
+  roadMapId: string;
 }
 
 // URL 미리보기용 임시 컴포넌트
@@ -43,7 +44,7 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   );
 };
 
-export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources }: SidebarProps) {
+export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
   const navigate = useNavigate();
