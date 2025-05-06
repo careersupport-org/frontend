@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage/page";
 import MyPage from "./pages/MyPage/page";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoadMapInputPage from "./pages/RoadMapInputPage/page";
+import RoadMapPage from "./pages/RoadMapPage/page";
 
 function App() {
   return (
@@ -21,7 +22,11 @@ function App() {
           <ProtectedRoute>
             <RoadMapInputPage />
           </ProtectedRoute>
-          
+        } />
+        <Route path="/roadmap/:id" element={
+          <ProtectedRoute>
+            <RoadMapPage />
+          </ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

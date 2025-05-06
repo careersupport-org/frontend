@@ -10,7 +10,8 @@ export default function RoadMapInputPage() {
   const [job, setJob] = useState("");
   const [etc, setEtc] = useState("");
   const navigate = useNavigate();
-
+  const roadmapService = RoadMapService.getInstance();
+  
   useEffect(() => {
     AccountService.getMyProfile()
       .then(profile => {
@@ -24,7 +25,7 @@ export default function RoadMapInputPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const id = await RoadMapService.createRoadMap({ job, etc });
+      const id = await roadmapService.createRoadMap( job, etc );
       navigate(`/roadmap/${id}`);
     } catch (err) {
       alert("로드맵 생성에 실패했습니다.");
