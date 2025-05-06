@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RoadMapStep } from '../../../services/RoadmapService';
 import RoadMapService from '../../../services/RoadmapService';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   selectedStep: RoadMapStep | null;
@@ -20,9 +21,8 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let ignore = false;
     setMeta({ title: url });
-  });
+  }, [url]);
 
   return (
     <a
@@ -46,6 +46,7 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
 export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!selectedStep) return;
@@ -96,15 +97,14 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
 
   const handleCreateSubRoadmap = async () => {
     if (!selectedStep) return;
-    
     setIsCreatingSubRoadmap(true);
     try {
-      // TODO: 서브 로드맵 생성 API 호출
-      // const newSubRoadmapId = await RoadMapService.getInstance().createSubRoadmap(selectedStep.id);
-      // 생성 후 해당 서브 로드맵 페이지로 이동
-      // window.location.href = `/roadmap/${newSubRoadmapId}`;
+      const newSubRoadmapId = await RoadMapService.getInstance().createSubRoadMap(selectedStep.id);
+      alert('서브 로드맵이 성공적으로 생성되었습니다!');
+      navigate(`/roadmap/${newSubRoadmapId}`);
     } catch (error) {
       console.error('Failed to create sub roadmap:', error);
+      alert('서브 로드맵 생성에 실패했습니다.');
     } finally {
       setIsCreatingSubRoadmap(false);
     }
@@ -112,7 +112,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
 
   const handleNavigateToSubRoadmap = () => {
     if (!selectedStep?.subRoadMapId) return;
-    window.location.href = `/roadmap/${selectedStep.subRoadMapId}`;
+    navigate(`/roadmap/${selectedStep.subRoadMapId}`);
   };
 
   if (!selectedStep) return null;

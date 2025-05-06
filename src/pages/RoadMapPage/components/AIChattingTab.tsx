@@ -15,9 +15,10 @@ const AIChattingTab: React.FC = () => {
   const [streamingContent, setStreamingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMsg = { role: 'user' as const, content: input };
+  const sendMessage = async (preset?: string) => {
+    const messageToSend = typeof preset === 'string' ? preset : input;
+    if (!messageToSend.trim()) return;
+    const userMsg = { role: 'user' as const, content: messageToSend };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
@@ -87,6 +88,22 @@ const AIChattingTab: React.FC = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
+      <div className="flex gap-2 px-4 pb-2">
+        <button
+          className="px-3 py-1 rounded bg-[#3A3A42] text-[#5AC8FA] hover:bg-[#5AC8FA] hover:text-[#1A1A20] text-sm transition-colors"
+          onClick={() => !loading && sendMessage('내 로드맵 피드백해줘')}
+          type="button"
+        >
+          내 로드맵 피드백하기
+        </button>
+        <button
+          className="px-3 py-1 rounded bg-[#3A3A42] text-[#5AC8FA] hover:bg-[#5AC8FA] hover:text-[#1A1A20] text-sm transition-colors"
+          onClick={() => !loading && sendMessage('이 단계에서 더 공부할만한 자료 추천해줘')}
+          type="button"
+        >
+          더 많은 경로 추천받기
+        </button>
+      </div>
       <div className="p-4 border-t border-[#3A3A42] flex gap-2">
         <input
           type="text"
@@ -99,7 +116,7 @@ const AIChattingTab: React.FC = () => {
         />
         <button
           className="px-4 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold disabled:opacity-50"
-          onClick={sendMessage}
+          onClick={() => sendMessage()}
           disabled={loading || !input.trim()}
         >
           전송

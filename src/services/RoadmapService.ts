@@ -180,6 +180,27 @@ class RoadMapService {
       }
     });
   }
+
+  public async createSubRoadMap(stepId: string): Promise<string> {
+    // 임시로 stepId 기반의 서브 로드맵 생성
+    const id = crypto.randomUUID().toString();
+    const subRoadMap: RoadMap = {
+      id,
+      title: `서브 로드맵 for step ${stepId}`,
+      steps: [
+        {
+          id: crypto.randomUUID().toString(),
+          step: 1,
+          title: '서브 단계 1',
+          description: '서브 로드맵의 첫 단계입니다.',
+          tags: ['서브', '예시'],
+          subRoadMapId: null
+        }
+      ]
+    };
+    this.roadMaps.set(id, subRoadMap);
+    return id;
+  }
 }
 
 export default RoadMapService;
