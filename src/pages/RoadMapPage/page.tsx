@@ -87,6 +87,7 @@ export default function RoadMapPage() {
       step: roadMap.steps.length + 1,
       title: '새로운 단계',
       description: '단계 설명을 입력하세요',
+      subRoadMapId: null,
       tags: []
     };
 

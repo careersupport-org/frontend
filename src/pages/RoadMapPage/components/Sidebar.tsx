@@ -7,36 +7,52 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+// URL 미리보기용 임시 컴포넌트
+interface EmbedPreviewProps {
+  url: string;
+}
+
+const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
+  const [meta, setMeta] = useState<{ title?: string; description?: string; image?: string }>({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+    setMeta({ title: url });
+  });
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block p-4 bg-[#1A1A20] rounded-lg hover:bg-[#2A2A32] transition-colors flex gap-4 items-center"
+      style={{ minHeight: 80 }}
+    >
+      <div className="w-20 h-20 bg-[#23232A] flex-shrink-0 flex items-center justify-center text-2xl text-[#5AC8FA]">
+        <span>🔗</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[#E0E0E6] font-medium mb-1 truncate">{loading ? '로딩 중...' : meta.title || url}</div>
+        <div className="text-[#A0A0B0] text-sm line-clamp-2">{meta.description || url}</div>
+      </div>
+    </a>
+  );
+};
+
 export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
-  const [subRoadmapId, setSubRoadmapId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [learningResources, setLearningResources] = useState<string[]>([]);
+  const [isLoadingResources, setIsLoadingResources] = useState(false);
 
   useEffect(() => {
     if (!selectedStep) return;
 
     let isCurrentStep = true;
     setDetails([]);
-    setSubRoadmapId(null);
-    setIsLoading(true);
-
-    const checkSubRoadmap = async () => {
-      try {
-        const id = await RoadMapService.getInstance().isSubRoadmapExists(selectedStep.id);
-        if (isCurrentStep) {
-          setSubRoadmapId(id);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Failed to check sub roadmap:', error);
-        if (isCurrentStep) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    checkSubRoadmap();
+    setLearningResources([]);
+    setIsLoadingResources(true);
 
     const fetchDetails = async () => {
       const stream = await RoadMapService.getInstance().getStepDetail(selectedStep.id);
@@ -72,7 +88,23 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
       }
     };
 
+    const fetchLearningResources = async () => {
+      try {
+        const resources = await RoadMapService.getInstance().getRecommendLearningResource(selectedStep.id);
+        if (isCurrentStep) {
+          setLearningResources(resources);
+        }
+      } catch (error) {
+        console.error('Failed to fetch learning resources:', error);
+      } finally {
+        if (isCurrentStep) {
+          setIsLoadingResources(false);
+        }
+      }
+    };
+
     fetchDetails();
+    fetchLearningResources();
 
     return () => {
       isCurrentStep = false;
@@ -96,8 +128,8 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
   };
 
   const handleNavigateToSubRoadmap = () => {
-    if (!subRoadmapId) return;
-    window.location.href = `/roadmap/${subRoadmapId}`;
+    if (!selectedStep?.subRoadMapId) return;
+    window.location.href = `/roadmap/${selectedStep.subRoadMapId}`;
   };
 
   if (!selectedStep) return null;
@@ -147,30 +179,20 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
             </div>
             <div className="border-t border-[#3A3A42] pt-6">
               <h4 className="text-lg font-semibold text-[#E0E0E6] mb-4">추천 학습 자료</h4>
-              <ul className="space-y-3">
-                <li className="flex items-center text-[#A0A0B0] hover:text-white cursor-pointer">
-                  <span className="mr-2">📚</span>
-                  <span>관련 도서 추천</span>
-                </li>
-                <li className="flex items-center text-[#A0A0B0] hover:text-white cursor-pointer">
-                  <span className="mr-2">🎥</span>
-                  <span>추천 강의</span>
-                </li>
-                <li className="flex items-center text-[#A0A0B0] hover:text-white cursor-pointer">
-                  <span className="mr-2">🔗</span>
-                  <span>유용한 링크</span>
-                </li>
-              </ul>
+              {isLoadingResources ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-[#5AC8FA] animate-pulse">추천 학습 자료를 불러오는 중...</div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {learningResources.map((url, idx) => (
+                    <EmbedPreview key={url + idx} url={url} />
+                  ))}
+                </div>
+              )}
             </div>
             <div className="border-t border-[#3A3A42] pt-6">
-              {isLoading ? (
-                <div className="w-full py-3 px-4 rounded-lg bg-[#2A2A32] text-[#3A3A42] flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                </div>
-              ) : subRoadmapId ? (
+              {selectedStep.subRoadMapId ? (
                 <button
                   onClick={handleNavigateToSubRoadmap}
                   className="w-full py-3 px-4 rounded-lg bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] transition-colors flex items-center justify-center gap-2"

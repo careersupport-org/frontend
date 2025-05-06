@@ -4,6 +4,7 @@ export interface RoadMapStep {
   title: string;
   description: string;
   tags: string[];
+  subRoadMapId: string | null;
 }
 
 export interface StepDetail {
@@ -43,35 +44,40 @@ class RoadMapService {
           step: 1,
           title: "기초 프로그래밍 학습",
           description: "Python, JavaScript 등 기초 문법과 알고리즘 익히기",
-          tags: ["Python", "JavaScript", "알고리즘", "자료구조"]
+          tags: ["Python", "JavaScript", "알고리즘", "자료구조"],
+          subRoadMapId: null
         },
         {
           id: crypto.randomUUID().toString(),
           step: 2,
           title: "웹 개발 기본",
           description: "HTML, CSS, JavaScript로 간단한 웹페이지 만들어보기",
-          tags: ["HTML", "CSS", "JavaScript", "웹 기초"]
+          tags: ["HTML", "CSS", "JavaScript", "웹 기초"],
+          subRoadMapId: "abcd1234"
         },
         {
           id: crypto.randomUUID().toString(),
           step: 3,
           title: "프레임워크 활용",
           description: "React, Vue 등 프론트엔드 프레임워크 학습",
-          tags: ["React", "Vue", "프론트엔드", "상태관리"]
+          tags: ["React", "Vue", "프론트엔드", "상태관리"],
+          subRoadMapId: null
         },
         {
           id: crypto.randomUUID().toString(),
           step: 4,
           title: "프로젝트 및 포트폴리오",
           description: "작은 프로젝트를 직접 만들어보고 GitHub에 정리",
-          tags: ["GitHub", "포트폴리오", "프로젝트", "협업"]
+          tags: ["GitHub", "포트폴리오", "프로젝트", "협업"],
+          subRoadMapId: null
         },
         {
           id: crypto.randomUUID().toString(),
           step: 5,
           title: "심화 학습 및 취업 준비",
           description: "CS 지식, 코딩테스트, 면접 준비 및 최신 트렌드 학습",
-          tags: ["CS", "코딩테스트", "면접", "트렌드"]
+          tags: ["CS", "코딩테스트", "면접", "트렌드"],
+          subRoadMapId: null
         },
       ],
     };
@@ -133,10 +139,14 @@ class RoadMapService {
     this.roadMaps.set(roadMap.id, roadMap);
   }
 
-  public async isSubRoadmapExists(stepId: string): Promise<string | null> {
-    // TODO: 실제 API 연동 시 서버에서 서브 로드맵 ID 확인
-    // 현재는 임시로 랜덤하게 ID 또는 null 반환
-    return Math.random() > 0.5 ? crypto.randomUUID().toString() : null;
+  public async getRecommendLearningResource(stepId: string): Promise<string[]> {
+    // TODO: 실제 API 연동 시 서버에서 추천 학습 자료를 가져옵니다.
+    // 현재는 임시 데이터를 반환합니다.
+    return [
+      'https://wikidocs.net/book/14314',
+      'https://developer.mozilla.org',
+      'https://www.inflearn.com/course/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B8%B0%EC%B4%88-%EA%B2%8C%EC%9D%B4%ED%8A%B8-3'
+    ];
   }
 }
 
