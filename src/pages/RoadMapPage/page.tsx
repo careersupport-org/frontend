@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import RoadMapService, { RoadMap } from "../../services/RoadmapService";
+import RoadMapService, { RoadMap, RoadMapStep } from "../../services/RoadmapService";
+import Sidebar from "./components/Sidebar";
 
 export default function RoadMapPage() {
   const { id } = useParams<{ id: string }>();
   const [roadMap, setRoadMap] = useState<RoadMap | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStep, setSelectedStep] = useState<RoadMapStep | null>(null);
 
   useEffect(() => {
     const fetchRoadMap = async () => {
@@ -58,18 +60,35 @@ export default function RoadMapPage() {
   return (
     <div className="min-h-screen bg-[#17171C] text-white font-sans flex flex-col">
       <Header />
-      <main className="flex-1 flex flex-col items-center px-4 py-12">
+      <main className="flex-1 flex px-4 py-12 mx-auto">
         <div className="w-full max-w-3xl">
           <h2 className="text-3xl font-bold text-center mb-12 text-[#5AC8FA]">{roadMap.title}</h2>
-          <div className="relative flex flex-col items-center">
+          <div>
             {roadMap.steps.map((step, idx) => (
-              <div key={step.step} className="flex flex-col items-center w-full mb-8 last:mb-0">
-                <div className="w-full bg-[#23232A] rounded-xl p-6 shadow-lg">
+              <div 
+                key={step.step} 
+                className="flex flex-col items-center w-full mb-8 last:mb-0"
+              >
+                <div 
+                  className={`w-full bg-[#23232A] rounded-xl py-6 px-20 shadow-lg cursor-pointer transition-all duration-200 hover:bg-[#2A2A32] ${
+                    selectedStep?.step === step.step ? 'ring-2 ring-[#5AC8FA]' : ''
+                  }`}
+                  onClick={() => setSelectedStep(step)}
+                >
                   <div className="text-lg font-bold text-[#5AC8FA] mb-1">STEP {step.step}</div>
                   <div className="text-xl font-semibold mb-2 text-[#E0E0E6]">{step.title}</div>
-                  <div className="text-[#A0A0B0]">{step.description}</div>
+                  <div className="text-[#A0A0B0] mb-4">{step.description}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {step.tags.map((tag) => (
+                      <span 
+                        key={tag}
+                        className="px-3 py-1 bg-[#2A2A32] text-[#5AC8FA] rounded-full text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                {/* 세로선과 화살표 (마지막 단계는 없음) */}
                 {idx < roadMap.steps.length - 1 && (
                   <div className="flex flex-col items-center mt-4">
                     <div className="flex justify-center items-center -mt-2">
@@ -83,6 +102,10 @@ export default function RoadMapPage() {
             ))}
           </div>
         </div>
+        <Sidebar 
+          selectedStep={selectedStep} 
+          onClose={() => setSelectedStep(null)} 
+        />
       </main>
       <Footer />
     </div>
