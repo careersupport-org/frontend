@@ -16,6 +16,8 @@ interface EditResourceModalProps {
 const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, resources, onSave }) => {
   const [urls, setUrls] = useState<string[]>(resources);
   const [input, setInput] = useState('');
+  const [aiCount, setAiCount] = useState(3);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     setUrls(resources);
@@ -34,11 +36,42 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
     onSave(urls);
     onClose();
   };
+  const handleAIRecommend = async () => {
+    setAiLoading(true);
+    try {
+      // stepId는 모달에서 직접 알 수 없으므로, props로 받아야 하지만 여기선 임시로 첫번째 url에서 추출(실제 적용시 수정 필요)
+      // 실제로는 부모에서 stepId를 prop으로 내려주는 것이 맞음
+      const stepId = resources[0] || '';
+      const aiUrls = await RoadMapService.getInstance().addRecommendResource(stepId, aiCount);
+      setUrls(prev => [...prev, ...aiUrls.filter(url => !prev.includes(url))]);
+    } catch (e) {
+      alert('AI 추천에 실패했습니다.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-[#23232A] rounded-lg shadow-lg w-full max-w-md p-6">
         <h3 className="text-xl font-bold text-[#5AC8FA] mb-4">추천 학습 자료 수정</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <select
+            className="px-2 py-1 rounded bg-[#1A1A20] text-[#E0E0E6] border border-[#3A3A42]"
+            value={aiCount}
+            onChange={e => setAiCount(Number(e.target.value))}
+            disabled={aiLoading}
+          >
+            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}개 추천</option>)}
+          </select>
+          <button
+            className="px-3 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold disabled:opacity-50"
+            onClick={handleAIRecommend}
+            disabled={aiLoading}
+          >
+            {aiLoading ? 'AI 추천 중...' : 'AI에게 추천받기'}
+          </button>
+        </div>
         <div className="space-y-2 mb-4">
           {urls.map((url, idx) => (
             <div key={url + idx} className="flex items-center bg-[#1A1A20] rounded px-3 py-2 mb-1">

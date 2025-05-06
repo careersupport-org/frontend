@@ -153,6 +153,12 @@ class RoadMapService {
     // TODO: 실제 API 연동 시 서버에 저장
     return Promise.resolve();
   }
+
+  public async addRecommendResource(stepId: string, count: number): Promise<string[]> {
+    // TODO: 실제 AI 추천 API 연동
+    // 임시로 count만큼의 더미 URL 반환
+    return Array.from({ length: count }, (_, i) => `https://ai-recommend.com/resource/${stepId}/${i + 1}`);
+  }
 }
 
 export default RoadMapService;
