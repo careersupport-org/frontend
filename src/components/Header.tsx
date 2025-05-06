@@ -12,10 +12,10 @@ const Header: React.FC = () => {
             <img src={logoDark} alt="logo" className="w-30 h-20" />
             {isAuthenticated ? (
                 <div className="flex items-center gap-4">
-                    <span className="font-semibold text-[#5AC8FA]">{user?.nickname}님</span>
+                    <span className="font-semibold text-[#E0E0E6]">{user?.nickname}님</span>
                     <button
                         onClick={logout}
-                        className="bg-[#23232A] text-[#5AC8FA] px-6 py-2 rounded-full font-semibold hover:bg-[#3BAFDA] border border-[#5AC8FA] transition"
+                        className="bg-[#23232A] text-[#E0E0E6] px-6 py-2 rounded-full font-semibold hover:bg-[#3BAFDA] border border-[#5AC8FA] transition"
                     >
                         로그아웃
                     </button>
