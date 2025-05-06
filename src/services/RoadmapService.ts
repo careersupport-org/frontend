@@ -5,6 +5,7 @@ export interface RoadMapStep {
   description: string;
   tags: string[];
   subRoadMapId: string | null;
+  isBookmarked?: boolean;
 }
 
 export interface StepDetail {
@@ -60,7 +61,8 @@ class RoadMapService {
           title: '기초 프로그래밍 학습',
           description: 'Python, JavaScript 등 기초 문법과 알고리즘 익히기',
           tags: ['Python', 'JavaScript', '알고리즘', '자료구조'],
-          subRoadMapId: null
+          subRoadMapId: null,
+          isBookmarked: true
         },
         {
           id: 'step2',
@@ -68,7 +70,8 @@ class RoadMapService {
           title: '웹 개발 기본',
           description: 'HTML, CSS, JavaScript로 간단한 웹페이지 만들어보기',
           tags: ['HTML', 'CSS', 'JavaScript', '웹 기초'],
-          subRoadMapId: 'abcd1234'
+          subRoadMapId: 'abcd1234',
+          isBookmarked: true
         },
         {
           id: 'step3',
@@ -76,7 +79,8 @@ class RoadMapService {
           title: '프레임워크 활용',
           description: 'React, Vue 등 프론트엔드 프레임워크 학습',
           tags: ['React', 'Vue', '프론트엔드', '상태관리'],
-          subRoadMapId: null
+          subRoadMapId: null,
+          isBookmarked: false
         },
         {
           id: 'step4',
@@ -84,7 +88,8 @@ class RoadMapService {
           title: '프로젝트 및 포트폴리오',
           description: '작은 프로젝트를 직접 만들어보고 GitHub에 정리',
           tags: ['GitHub', '포트폴리오', '프로젝트', '협업'],
-          subRoadMapId: null
+          subRoadMapId: null,
+          isBookmarked: false
         },
         {
           id: 'step5',
@@ -92,7 +97,8 @@ class RoadMapService {
           title: '심화 학습 및 취업 준비',
           description: 'CS 지식, 코딩테스트, 면접 준비 및 최신 트렌드 학습',
           tags: ['CS', '코딩테스트', '면접', '트렌드'],
-          subRoadMapId: null
+          subRoadMapId: null,
+          isBookmarked: false
         },
       ],
       createdAt: '2024-04-03',
@@ -216,8 +222,18 @@ class RoadMapService {
         roadMapId: "test1234",
         stepId: "step2",
         title: "웹 개발 기본"
+      },
+      {
+        roadMapId: "test5678",
+        stepId: "step1",
+        title: "Java Programming"
       }
     ]);
+  }
+
+  public async updateBookMarkStatus(roadMapId: string, stepId: string, title: string, status: boolean): Promise<void> {
+    // TODO: 실제 API 연동 시 서버에 저장
+    return Promise.resolve();
   }
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import RoadMapService, { RoadMap, RoadMapStep } from "../../services/RoadmapService";
@@ -112,6 +112,8 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
 
 export default function RoadMapPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [roadMap, setRoadMap] = useState<RoadMap | null>(null);
   const [selectedStep, setSelectedStep] = useState<RoadMapStep | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -148,6 +150,19 @@ export default function RoadMapPage() {
     fetchRoadMap();
   }, [id]);
 
+  // 쿼리스트링 stepId로 사이드바 자동 오픈 및 step이 없으면 닫힘
+  useEffect(() => {
+    if (!roadMap) return;
+    const stepId = searchParams.get('step');
+    if (stepId) {
+      const step = roadMap.steps.find(s => s.id === stepId);
+      if (step) setSelectedStep(step);
+      else setSelectedStep(null);
+    } else {
+      setSelectedStep(null);
+    }
+  }, [roadMap, searchParams]);
+
   // 선택된 스텝이 바뀔 때마다 추천 학습자료 fetch
   useEffect(() => {
     if (!selectedStep) return;
@@ -174,7 +189,7 @@ export default function RoadMapPage() {
 
   const handleStepClick = (step: RoadMapStep) => {
     if (!isEditMode) {
-      setSelectedStep(step);
+      navigate(`/roadmap/${id}?step=${step.id}`);
     }
   };
 
@@ -272,6 +287,12 @@ export default function RoadMapPage() {
     } else {
       setIsEditMode(true);
     }
+  };
+
+  const handleSidebarClose = () => {
+    // ?step 쿼리스트링 제거
+    searchParams.delete('step');
+    navigate({ pathname: `/roadmap/${id}`, search: searchParams.toString() ? `?${searchParams.toString()}` : '' }, { replace: true });
   };
 
   if (error) {
@@ -470,7 +491,7 @@ export default function RoadMapPage() {
             </div>
             <Sidebar
               selectedStep={selectedStep}
-              onClose={() => setSelectedStep(null)}
+              onClose={handleSidebarClose}
               onEditResource={() => setEditModalOpen(true)}
               learningResources={learningResources}
               isLoadingResources={isLoadingResources}

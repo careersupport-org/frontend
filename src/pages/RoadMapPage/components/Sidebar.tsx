@@ -47,6 +47,8 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
 export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
+  const [bookmarkSuccess, setBookmarkSuccess] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,13 +118,58 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
     navigate(`/roadmap/${selectedStep.subRoadMapId}`);
   };
 
+  const handleBookmark = async () => {
+    if (isBookmarking || !selectedStep) return;
+    setIsBookmarking(true);
+    setBookmarkSuccess(false);
+    try {
+      const newStatus = !selectedStep.isBookmarked;
+      await RoadMapService.getInstance().updateBookMarkStatus(
+        roadMapId,
+        selectedStep.id,
+        selectedStep.title,
+        newStatus
+      );
+      selectedStep.isBookmarked = newStatus;
+      setBookmarkSuccess(true);
+      setTimeout(() => setBookmarkSuccess(false), 1200);
+    } catch (e) {
+      alert('북마크 상태 변경에 실패했습니다.');
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
+
   if (!selectedStep) return null;
 
   return (
     <div className="fixed right-0 top-0 h-full w-96 bg-[#23232A] shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
       <div className="h-full flex flex-col">
         <div className="flex justify-between items-center p-6 border-b border-[#3A3A42]">
-          <h3 className="text-2xl font-bold text-[#5AC8FA]">Step {selectedStep.step} 상세 정보</h3>
+          <h3 className="text-2xl font-bold text-[#5AC8FA] flex items-center gap-2">
+            Step {selectedStep.step} 상세 정보
+            <button
+              onClick={handleBookmark}
+              disabled={isBookmarking}
+              className="ml-2 p-1 rounded hover:bg-[#2A2A32] transition-colors"
+              title={selectedStep.isBookmarked ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill={selectedStep.isBookmarked || bookmarkSuccess ? '#FFD600' : 'none'}
+                stroke="#FFD600"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`w-6 h-6 ${isBookmarking ? 'animate-pulse' : ''}`}
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+            {bookmarkSuccess && <span className="text-[#FFD600] text-sm ml-1">저장됨!</span>}
+          </h3>
           <button 
             onClick={onClose}
             className="text-[#A0A0B0] hover:text-white"
