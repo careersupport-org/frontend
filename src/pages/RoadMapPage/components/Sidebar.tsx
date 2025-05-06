@@ -13,8 +13,10 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
   useEffect(() => {
     if (!selectedStep) return;
 
+    let isCurrentStep = true; // 현재 선택된 Step을 추적하는 플래그
+    setDetails([]); // 새로운 step이 선택되면 details 초기화
+
     const fetchDetails = async () => {
-      setDetails([]); // 새로운 step이 선택되면 details 초기화
       const stream = await RoadMapService.getInstance().getStepDetail(selectedStep.id);
       const reader = stream.getReader();
 
@@ -22,6 +24,9 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
+
+          // 이전 Step이 아닌 경우에만 상태 업데이트
+          if (!isCurrentStep) break;
 
           // SSE 형식의 데이터 파싱
           const text = new TextDecoder().decode(value);
@@ -31,7 +36,7 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.slice(6));
-                if (data.content) {
+                if (data.content && isCurrentStep) {
                   setDetails(prev => [...prev, data.content]);
                 }
               } catch (e) {
@@ -48,6 +53,11 @@ export default function Sidebar({ selectedStep, onClose }: SidebarProps) {
     };
 
     fetchDetails();
+
+    // cleanup 함수: 새로운 Step이 선택되면 이전 작업 취소
+    return () => {
+      isCurrentStep = false;
+    };
   }, [selectedStep]);
 
   if (!selectedStep) return null;
