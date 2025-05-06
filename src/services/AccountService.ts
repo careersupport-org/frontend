@@ -10,12 +10,11 @@ interface MyProfile {
     },
 
     getMyProfile: async (): Promise<MyProfile> => {
-      return Promise.reject(new Error("Not implemented"));
       
-      // const myProfile = {
-      //   bio: "안녕하세요. 저는 프론트엔드 개발자입니다.",
-      // }  
-      // return Promise.resolve(myProfile); // 임시 성공 처리
+      const myProfile = {
+        bio: "안녕하세요. 저는 프론트엔드 개발자입니다.",
+      }  
+      return Promise.resolve(myProfile); // 임시 성공 처리
     },
   };
   

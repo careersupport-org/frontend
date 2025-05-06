@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import AccountService from "../../services/AccountService";
-import { Link } from "react-router-dom";
+import RoadMapService from "../../services/RoadmapService";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RoadMapInputPage() {
   const [bioExists, setBioExists] = useState<boolean | null>(null);
   const [job, setJob] = useState("");
+  const [etc, setEtc] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     AccountService.getMyProfile()
@@ -18,9 +21,14 @@ export default function RoadMapInputPage() {
       });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 로드맵 생성 로직 (API 연동 등)
+    try {
+      const id = await RoadMapService.createRoadMap({ job, etc });
+      navigate(`/roadmap/${id}`);
+    } catch (err) {
+      alert("로드맵 생성에 실패했습니다.");
+    }
   };
 
   return (
@@ -48,7 +56,9 @@ export default function RoadMapInputPage() {
             />
             <label className="text-lg font-semibold text-[#E0E0E6] mt-2">기타 지시사항</label>
             <textarea
-              placeholder="예: 선호하는 기술스택, 희망 기업, 학습 방식 등"
+              placeholder="예: 선호하는 기술스택, 학습 방식 등"
+              value={etc}
+              onChange={e => setEtc(e.target.value)}
               className="bg-[#23232A] rounded px-4 py-3 text-white placeholder-[#A0A0B0] focus:outline-none focus:ring-2 focus:ring-[#5AC8FA] min-h-[80px]"
             />
             <button
