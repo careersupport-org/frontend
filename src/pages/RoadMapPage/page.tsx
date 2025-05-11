@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import RoadMapService, { RoadMap, RoadMapStep } from "../../services/RoadmapService";
+import RoadMapService, { LearningResource, RoadMap, RoadMapStep } from "../../services/RoadmapService";
 import Sidebar from "./components/Sidebar";
 import AIChattingTab from "./components/AIChattingTab";
 import BookmarkTab from "./components/BookmarkTab";
@@ -11,31 +11,27 @@ import BookmarkTab from "./components/BookmarkTab";
 interface EditResourceModalProps {
   open: boolean;
   onClose: () => void;
-  resources: string[];
-  onSave: (urls: string[]) => void;
+  resources: LearningResource[];
+  onSave: (urls: LearningResource[]) => void;
 }
 
 const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, resources, onSave }) => {
-  const [urls, setUrls] = useState<string[]>(resources);
+  const [learningResources, setLearningResources] = useState<LearningResource[]>(resources);
   const [input, setInput] = useState('');
   const [aiCount, setAiCount] = useState(3);
   const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
-    setUrls(resources);
+    setLearningResources(resources);
   }, [resources, open]);
 
   const handleAdd = () => {
-    if (input.trim() && !urls.includes(input.trim())) {
-      setUrls([...urls, input.trim()]);
-      setInput('');
-    }
   };
-  const handleDelete = (idx: number) => {
-    setUrls(urls.filter((_, i) => i !== idx));
+
+  const handleDelete = (idx: string) => {
   };
   const handleSave = () => {
-    onSave(urls);
+    onSave(learningResources);
     onClose();
   };
   const handleAIRecommend = async () => {
@@ -44,8 +40,7 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
       // stepId는 모달에서 직접 알 수 없으므로, props로 받아야 하지만 여기선 임시로 첫번째 url에서 추출(실제 적용시 수정 필요)
       // 실제로는 부모에서 stepId를 prop으로 내려주는 것이 맞음
       const stepId = resources[0] || '';
-      const aiUrls = await RoadMapService.getInstance().addRecommendResource(stepId, aiCount);
-      setUrls(prev => [...prev, ...aiUrls.filter(url => !prev.includes(url))]);
+
     } catch (e) {
       alert('AI 추천에 실패했습니다.');
     } finally {
@@ -75,10 +70,10 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
           </button>
         </div>
         <div className="space-y-2 mb-4">
-          {urls.map((url, idx) => (
-            <div key={url + idx} className="flex items-center bg-[#1A1A20] rounded px-3 py-2 mb-1">
-              <span className="flex-1 text-[#E0E0E6] truncate">{url}</span>
-              <button className="ml-2 text-[#FA5A5A] hover:text-red-400" onClick={() => handleDelete(idx)} title="삭제">
+          {learningResources.map((resource) => (
+            <div key={resource.id} className="flex items-center bg-[#1A1A20] rounded px-3 py-2 mb-1">
+              <span className="flex-1 text-[#E0E0E6] truncate">{resource.url}</span>
+              <button className="ml-2 text-[#FA5A5A] hover:text-red-400" onClick={() => handleDelete(resource.id)} title="삭제">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -125,7 +120,7 @@ export default function RoadMapPage() {
     tags: string;
   } | null>(null);
   // 추천 학습자료 관련 상태
-  const [learningResources, setLearningResources] = useState<string[]>([]);
+  const [learningResources, setLearningResources] = useState<LearningResource[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -181,10 +176,8 @@ export default function RoadMapPage() {
     fetchLearningResources();
   }, [selectedStep]);
 
-  const handleSaveResources = async (urls: string[]) => {
+  const handleSaveResources = async (urls: LearningResource[]) => {
     if (!selectedStep) return;
-    await RoadMapService.getInstance().updateRecommendLearningResource(selectedStep.id, urls);
-    setLearningResources(urls);
   };
 
   const handleStepClick = (step: RoadMapStep) => {

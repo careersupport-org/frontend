@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RoadMapStep } from '../../../services/RoadmapService';
+import { RoadMapStep, LearningResource } from '../../../services/RoadmapService';
 import RoadMapService from '../../../services/RoadmapService';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -9,7 +9,7 @@ interface SidebarProps {
   selectedStep: RoadMapStep | null;
   onClose: () => void;
   onEditResource: () => void;
-  learningResources: string[];
+  learningResources: LearningResource[];
   isLoadingResources: boolean;
   roadMapId: string;
 }
@@ -230,8 +230,8 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {learningResources.map((url, idx) => (
-                    <EmbedPreview key={url + idx} url={url} />
+                  {learningResources.map((resource) => (
+                    <EmbedPreview key={resource.id} url={resource.url} />
                   ))}
                 </div>
               )}

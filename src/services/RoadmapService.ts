@@ -8,6 +8,11 @@ export interface RoadMapStep {
   isBookmarked?: boolean;
 }
 
+export interface LearningResource {
+  id: string;
+  url: string;
+}
+
 export interface StepDetail {
   id: string;
   content: string;
@@ -89,7 +94,7 @@ class RoadMapService {
     return Promise.resolve();
   }
 
-  public async getRecommendLearningResource(stepId: string): Promise<string[]> {
+  public async getRecommendLearningResource(stepId: string): Promise<LearningResource[]> {
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/resources`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -97,9 +102,15 @@ class RoadMapService {
     });
     const data = await response.json();
 
+    const result: LearningResource[] = [];
+    for (let i = 0; i < data["resources"].length; i++) {
+      result.push({
+        id: data["resources"][i]["id"],
+        url: data["resources"][i]["url"]
+      });
+    }
 
-
-    return Promise.resolve(data["url"]);
+    return Promise.resolve(result);
   }
 
   public async updateRecommendLearningResource(stepId: string, urls: string[]): Promise<void> {
