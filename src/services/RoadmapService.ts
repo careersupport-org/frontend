@@ -124,25 +124,21 @@ class RoadMapService {
     return Array.from({ length: count }, (_, i) => `https://ai-recommend.com/resource/${stepId}/${i + 1}`);
   }
 
-  public callAI(prompt: string): ReadableStream<Uint8Array> {
-    const encoder = new TextEncoder();
-    let charIndex = 0;
-    const aiAnswer = `AI의 답변입니다: ${prompt.split('').reverse().join('')}`;
-    return new ReadableStream<Uint8Array>({
-      start(controller) {
-        controller.enqueue(encoder.encode(`data: {"content": ""}\n\n`));
-        const interval = setInterval(() => {
-          if (charIndex < aiAnswer.length) {
-            const currentContent = aiAnswer.slice(0, charIndex + 1);
-            controller.enqueue(encoder.encode(`data: {"content": "${currentContent}"}\n\n`));
-            charIndex++;
-          } else {
-            clearInterval(interval);
-            controller.close();
-          }
-        }, 500);
-      }
+  public async callAI(roadmapId: string, userInput: string): Promise<ReadableStream<Uint8Array>> {
+    const response = await fetch(`${BACKEND_API}/roadmap/${roadmapId}/assistant`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ user_input: userInput })
     });
+
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
+
+    return response.body;
   }
 
   public async createSubRoadMap(stepId: string): Promise<string> {

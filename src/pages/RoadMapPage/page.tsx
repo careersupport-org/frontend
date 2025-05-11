@@ -315,7 +315,7 @@ export default function RoadMapPage() {
           {/* 왼쪽: BookMarkTab + AI 채팅 탭 */}
           <div className="w-96 flex-shrink-0 flex flex-col gap-4">
             <BookmarkTab />
-            <AIChattingTab />
+            <AIChattingTab roadmapId={roadMap.id} />
           </div>
           {/* 오른쪽: 기존 로드맵 컨텐츠 */}
           <div className="flex-1 min-w-0">

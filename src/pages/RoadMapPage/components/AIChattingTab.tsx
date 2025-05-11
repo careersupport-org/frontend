@@ -1,9 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import RoadMapService from '../../../services/RoadmapService';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-export default function AIChattingTab() {
+interface AIChattingTabProps {
+  roadmapId: string;
+}
+
+export default function AIChattingTab({ roadmapId }: AIChattingTabProps) {
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([
-    {role : "assistant", content : "안녕하세요! 로드맵 도우미입니다. 무엇을 도와드릴까요?"}
+    { role: "assistant", content: "안녕하세요! 로드맵 도우미입니다. 무엇을 도와드릴까요?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +26,7 @@ export default function AIChattingTab() {
   const sendAIMessage = async (message: string) => {
     setIsLoading(true);
     try {
-      const stream = await RoadMapService.getInstance().callAI(message);
+      const stream = await RoadMapService.getInstance().callAI(roadmapId, message);
       const reader = stream.getReader();
       let aiResponse = '';
       while (true) {
@@ -32,8 +38,8 @@ export default function AIChattingTab() {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              if (data.content) {
-                aiResponse = data.content;
+              if (data.token) {
+                aiResponse = aiResponse + data.token;
                 setMessages(prev => {
                   const newMessages = [...prev];
                   const lastMessage = newMessages[newMessages.length - 1];
@@ -71,7 +77,7 @@ export default function AIChattingTab() {
 
   return (
     <div className="bg-[#1D1D22] rounded-2xl overflow-hidden">
-      <div 
+      <div
         className="bg-[#23232A] p-4 cursor-pointer hover:bg-[#2A2A32] transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -88,13 +94,12 @@ export default function AIChattingTab() {
         </h2>
       </div>
 
-      <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-[500px]' : 'max-h-0'
-        }`}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[500px]' : 'max-h-0'
+          }`}
       >
         <div className="p-4 space-y-4">
-          
+
           {/*채팅 메시지 영역 */}
           <div className="space-y-4 max-h-[300px] overflow-y-auto">
             {messages.map((message, index) => (
@@ -103,13 +108,18 @@ export default function AIChattingTab() {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.role === 'user'
-                      ? 'bg-[#5AC8FA] text-[#17171C]'
-                      : 'bg-[#23232A] text-[#E0E0E6]'
-                  }`}
+                  className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user'
+                    ? 'bg-[#5AC8FA] text-[#17171C]'
+                    : 'bg-[#23232A] text-[#E0E0E6]'
+                    }`}
                 >
-                  {message.content}
+                  {message.role === 'user' ? (
+                    message.content
+                  ) : (
+                    <div className="prose prose-invert max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -126,8 +136,8 @@ export default function AIChattingTab() {
             )}
             <div ref={messagesEndRef} />
           </div>
-{/* 프리셋 버튼들 */}
-<div className="flex flex-wrap gap-2">
+          {/* 프리셋 버튼들 */}
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handlePresetClick("내 로드맵 피드백해줘")}
               className="bg-[#23232A] text-[#5AC8FA] px-3 py-1 rounded-full text-sm hover:bg-[#2A2A32] transition"
