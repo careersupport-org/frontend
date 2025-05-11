@@ -6,104 +6,7 @@ import RoadMapService, { LearningResource, RoadMap, RoadMapStep } from "../../se
 import Sidebar from "./components/Sidebar";
 import AIChattingTab from "./components/AIChattingTab";
 import BookmarkTab from "./components/BookmarkTab";
-
-// 추천 학습 자료 수정용 모달 컴포넌트
-interface EditResourceModalProps {
-  open: boolean;
-  onClose: () => void;
-  resources: LearningResource[];
-  onSave: (urls: LearningResource[]) => void;
-}
-
-const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, resources, onSave }) => {
-  const [learningResources, setLearningResources] = useState<LearningResource[]>(resources);
-  const [input, setInput] = useState('');
-  const [aiCount, setAiCount] = useState(3);
-  const [aiLoading, setAiLoading] = useState(false);
-
-  useEffect(() => {
-    setLearningResources(resources);
-  }, [resources, open]);
-
-  const handleAdd = () => {
-  };
-
-  const handleDelete = (idx: string) => {
-  };
-  const handleSave = () => {
-    onSave(learningResources);
-    onClose();
-  };
-  const handleAIRecommend = async () => {
-    setAiLoading(true);
-    try {
-      // stepId는 모달에서 직접 알 수 없으므로, props로 받아야 하지만 여기선 임시로 첫번째 url에서 추출(실제 적용시 수정 필요)
-      // 실제로는 부모에서 stepId를 prop으로 내려주는 것이 맞음
-      const stepId = resources[0] || '';
-
-    } catch (e) {
-      alert('AI 추천에 실패했습니다.');
-    } finally {
-      setAiLoading(false);
-    }
-  };
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-[#23232A] rounded-lg shadow-lg w-full max-w-md p-6">
-        <h3 className="text-xl font-bold text-[#5AC8FA] mb-4">추천 학습 자료 수정</h3>
-        <div className="flex items-center gap-2 mb-4">
-          <select
-            className="px-2 py-1 rounded bg-[#1A1A20] text-[#E0E0E6] border border-[#3A3A42]"
-            value={aiCount}
-            onChange={e => setAiCount(Number(e.target.value))}
-            disabled={aiLoading}
-          >
-            {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}개 추천</option>)}
-          </select>
-          <button
-            className="px-3 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold disabled:opacity-50"
-            onClick={handleAIRecommend}
-            disabled={aiLoading}
-          >
-            {aiLoading ? 'AI 추천 중...' : 'AI에게 추천받기'}
-          </button>
-        </div>
-        <div className="space-y-2 mb-4">
-          {learningResources.map((resource) => (
-            <div key={resource.id} className="flex items-center bg-[#1A1A20] rounded px-3 py-2 mb-1">
-              <span className="flex-1 text-[#E0E0E6] truncate">{resource.url}</span>
-              <button className="ml-2 text-[#FA5A5A] hover:text-red-400" onClick={() => handleDelete(resource.id)} title="삭제">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            className="flex-1 px-3 py-2 rounded bg-[#1A1A20] text-[#E0E0E6] border border-[#3A3A42] focus:outline-none"
-            placeholder="URL 입력 후 Enter"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
-          />
-          <button
-            className="px-3 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold"
-            onClick={handleAdd}
-            type="button"
-          >추가</button>
-        </div>
-        <div className="flex justify-end gap-2">
-          <button className="px-4 py-2 rounded bg-[#3A3A42] text-[#E0E0E6] hover:bg-[#444454]" onClick={onClose}>취소</button>
-          <button className="px-4 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold" onClick={handleSave}>저장</button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import EditResourceModal from './components/EditResourceModal';
 
 export default function RoadMapPage() {
   const { id } = useParams<{ id: string }>();
@@ -122,7 +25,7 @@ export default function RoadMapPage() {
   // 추천 학습자료 관련 상태
   const [learningResources, setLearningResources] = useState<LearningResource[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isEditResourceModalOpen, setIsEditResourceModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -308,7 +211,7 @@ export default function RoadMapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1A1A20] text-white">
+    <div className="min-h-screen bg-[#17171C] text-[#E0E0E6]">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-row gap-8">
@@ -322,6 +225,14 @@ export default function RoadMapPage() {
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-bold text-[#5AC8FA]">{roadMap.title}</h1>
               <div className="flex gap-4">
+                {isEditMode && (
+                  <button
+                    onClick={handleAddStep}
+                    className="px-4 py-2 bg-[#2A2A32] text-[#5AC8FA] rounded-lg hover:bg-[#3A3A42] transition-colors"
+                  >
+                    단계 추가
+                  </button>
+                )}
                 <button
                   onClick={handleEditModeToggle}
                   className={`px-4 py-2 rounded-lg transition-colors ${isEditMode
@@ -331,14 +242,6 @@ export default function RoadMapPage() {
                 >
                   {isEditMode ? '편집 완료' : '편집 모드'}
                 </button>
-                {isEditMode && (
-                  <button
-                    onClick={handleAddStep}
-                    className="px-4 py-2 bg-[#2A2A32] text-[#5AC8FA] rounded-lg hover:bg-[#3A3A42] transition-colors"
-                  >
-                    단계 추가
-                  </button>
-                )}
               </div>
             </div>
             <div className="space-y-6">
@@ -485,17 +388,23 @@ export default function RoadMapPage() {
             <Sidebar
               selectedStep={selectedStep}
               onClose={handleSidebarClose}
-              onEditResource={() => setEditModalOpen(true)}
+              onEditResource={() => setIsEditResourceModalOpen(true)}
               learningResources={learningResources}
               isLoadingResources={isLoadingResources}
               roadMapId={roadMap.id}
             />
-            <EditResourceModal
-              open={editModalOpen}
-              onClose={() => setEditModalOpen(false)}
-              resources={learningResources}
-              onSave={handleSaveResources}
-            />
+            {isEditResourceModalOpen && selectedStep && (
+              <EditResourceModal
+                isOpen={isEditResourceModalOpen}
+                onClose={() => setIsEditResourceModalOpen(false)}
+                stepId={selectedStep.id}
+                initialResources={learningResources}
+                onSave={(newResources) => {
+                  setLearningResources(newResources);
+                  setIsEditResourceModalOpen(false);
+                }}
+              />
+            )}
           </div>
         </div>
       </div>
