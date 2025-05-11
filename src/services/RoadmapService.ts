@@ -181,12 +181,11 @@ class RoadMapService {
     const result: StepPreview[] = [];
     for (let i = 0; i < data["steps"].length; i++) {
       result.push({
-        roadMapId: data["steps"][i]["roadmap_id"],
-        stepId: data["steps"][i]["step_id"],
+        roadMapId: data["steps"][i]["roadmap_uid"],
+        stepId: data["steps"][i]["step_uid"],
         title: data["steps"][i]["title"]
       });
     }
-
     return Promise.resolve(result);
   }
 

@@ -13,6 +13,7 @@ export default function BookmarkTab() {
       try {
         const data = await RoadMapService.getInstance().getBookMarks();
         setBookmarks(data);
+
       } catch (error) {
         console.error('북마크를 불러오는데 실패했습니다:', error);
       } finally {
@@ -40,9 +41,8 @@ export default function BookmarkTab() {
         </svg>
       </div>
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-[400px]' : 'max-h-0'
-        }`}
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[400px]' : 'max-h-0'
+          }`}
       >
         <div className="p-6">
           {isLoading ? (
