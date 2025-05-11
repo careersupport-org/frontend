@@ -4,8 +4,6 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 export interface User {
   id: string;
   nickname: string;
-  email: string;
-  // 필요에 따라 필드 추가
 }
 
 interface AuthContextType {
@@ -28,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (stored) {
       try {
         setUser(JSON.parse(stored));
-      } catch {}
+      } catch { }
     }
     setLoading(false);
   }, []);

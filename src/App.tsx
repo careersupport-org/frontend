@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from "./pages/MainPage/page";
 import LoginPage from "./pages/LoginPage/page";
+import KakaoCallback from "./pages/LoginPage/KakaoCallback";
 import MyPage from "./pages/MyPage/page";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoadMapInputPage from "./pages/RoadMapInputPage/page";
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
           <Route path="/mypage" element={
             <ProtectedRoute>
               <MyPage />
