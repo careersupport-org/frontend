@@ -39,6 +39,7 @@ export interface RoadMap {
   updatedAt: string;
 }
 
+
 const BACKEND_API = process.env.REACT_APP_BACKEND_API;
 class RoadMapService {
   private static instance: RoadMapService;
@@ -113,12 +114,32 @@ class RoadMapService {
     return Promise.resolve(result);
   }
 
-  public async updateRecommendLearningResource(stepId: string, urls: string[]): Promise<void> {
-    // TODO: 실제 API 연동 시 서버에 저장
+  public async addRecommendResource(stepId: string, url: string): Promise<LearningResource> {
+    const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/resources`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: url })
+    });
+
+    const data = await response.json();
+    return Promise.resolve({ id: data["id"], url: url });
+  }
+
+  public async removeRecommendResource(resourceId: string): Promise<void> {
+    await fetch(`${BACKEND_API}/roadmap/step/resources/${resourceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+    });
+
     return Promise.resolve();
   }
 
-  public async addRecommendResource(stepId: string, count: number): Promise<string[]> {
+  public async addAIRecommendResource(stepId: string, count: number): Promise<string[]> {
     // TODO: 실제 AI 추천 API 연동
     // 임시로 count만큼의 더미 URL 반환
     return Array.from({ length: count }, (_, i) => `https://ai-recommend.com/resource/${stepId}/${i + 1}`);

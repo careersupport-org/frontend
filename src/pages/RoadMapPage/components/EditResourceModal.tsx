@@ -13,22 +13,22 @@ export default function EditResourceModal({ isOpen, onClose, stepId, initialReso
     const [resources, setResources] = useState<{ id: string; url: string }[]>(initialResources);
     const [newUrl, setNewUrl] = useState('');
 
-    const handleAddResource = () => {
+    const handleAddResource = async () => {
         if (newUrl.trim()) {
-            setResources([...resources, { id: crypto.randomUUID().toString(), url: newUrl.trim() }]);
+            const resource = await RoadMapService.getInstance().addRecommendResource(stepId, newUrl.trim());
+            setResources([...resources, resource]);
             setNewUrl('');
         }
     };
 
-    const handleRemoveResource = (id: string) => {
-        setResources(resources.filter(resource => resource.id !== id));
+    const handleRemoveResource = async (resource_id: string) => {
+        if (window.confirm('정말 삭제하시겠습니까?')) {
+            await RoadMapService.getInstance().removeRecommendResource(resource_id);
+            setResources(resources.filter(resource => resource.id !== resource_id));
+        }
     };
 
     const handleSave = async () => {
-        await RoadMapService.getInstance().updateRecommendLearningResource(
-            stepId,
-            resources.map(resource => resource.url)
-        );
         onSave(resources);
         onClose();
     };
@@ -78,16 +78,10 @@ export default function EditResourceModal({ isOpen, onClose, stepId, initialReso
                 </div>
                 <div className="flex justify-end gap-2 mt-6">
                     <button
-                        onClick={onClose}
-                        className="bg-[#23232A] text-[#E0E0E6] px-4 py-2 rounded-lg font-semibold hover:bg-[#2A2A32] transition"
-                    >
-                        취소
-                    </button>
-                    <button
                         onClick={handleSave}
                         className="bg-[#5AC8FA] text-[#17171C] px-4 py-2 rounded-lg font-semibold hover:bg-[#3BAFDA] transition"
                     >
-                        저장
+                        완료
                     </button>
                 </div>
             </div>
