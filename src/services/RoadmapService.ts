@@ -171,28 +171,32 @@ class RoadMapService {
   }
 
   public async getBookMarks(): Promise<StepPreview[]> {
-    // TODO: 실제 API 연동 시 사용자의 북마크 목록을 반환
-    return Promise.resolve([
-      {
-        roadMapId: "test1234",
-        stepId: "step1",
-        title: "기초 프로그래밍 학습"
-      },
-      {
-        roadMapId: "test1234",
-        stepId: "step2",
-        title: "웹 개발 기본"
-      },
-      {
-        roadMapId: "test5678",
-        stepId: "step1",
-        title: "Java Programming"
+    const response = await fetch(`${BACKEND_API}/roadmap/bookmarks`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    ]);
+    });
+    const data = await response.json();
+
+    const result: StepPreview[] = [];
+    for (let i = 0; i < data["steps"].length; i++) {
+      result.push({
+        roadMapId: data["steps"][i]["roadmap_id"],
+        stepId: data["steps"][i]["step_id"],
+        title: data["steps"][i]["title"]
+      });
+    }
+
+    return Promise.resolve(result);
   }
 
-  public async updateBookMarkStatus(roadMapId: string, stepId: string, title: string, status: boolean): Promise<void> {
-    // TODO: 실제 API 연동 시 서버에 저장
+  public async updateBookMarkStatus(stepId: string): Promise<void> {
+    const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/bookmark`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
     return Promise.resolve();
   }
 }

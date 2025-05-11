@@ -128,13 +128,10 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
     try {
       const newStatus = !selectedStep.isBookmarked;
       await RoadMapService.getInstance().updateBookMarkStatus(
-        roadMapId,
         selectedStep.id,
-        selectedStep.title,
-        newStatus
       );
       selectedStep.isBookmarked = newStatus;
-      setBookmarkSuccess(true);
+      setBookmarkSuccess(newStatus);
       setTimeout(() => setBookmarkSuccess(false), 1200);
     } catch (e) {
       alert('북마크 상태 변경에 실패했습니다.');
