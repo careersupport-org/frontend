@@ -142,7 +142,15 @@ class RoadMapService {
   }
 
   public async createSubRoadMap(stepId: string): Promise<string> {
-    return Promise.resolve(crypto.randomUUID().toString());
+    const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/subroadmap`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    const data = await response.json();
+    return data.subroadmap_uid;
   }
 
   public async getMyRoadMaps(): Promise<RoadMapPreview[]> {
