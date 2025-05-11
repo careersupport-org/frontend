@@ -48,7 +48,17 @@ class RoadMapService {
   }
 
   public async createRoadMap(job: string, etc: string): Promise<string> {
-    return Promise.resolve(crypto.randomUUID().toString());
+    const response = await fetch(`${BACKEND_API}/roadmap`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ target_job: job, instruct: etc })
+    });
+
+    const data = await response.json();
+    return Promise.resolve(data["id"]);
   }
 
   public async getRoadMap(id: string): Promise<RoadMap | null> {
@@ -80,13 +90,16 @@ class RoadMapService {
   }
 
   public async getRecommendLearningResource(stepId: string): Promise<string[]> {
-    // TODO: 실제 API 연동 시 서버에서 추천 학습 자료를 가져옵니다.
-    // 현재는 임시 데이터를 반환합니다.
-    return [
-      'https://wikidocs.net/book/14314',
-      'https://developer.mozilla.org',
-      'https://www.inflearn.com/course/%EC%BB%B4%ED%93%A8%ED%84%B0%EA%B8%B0%EC%B4%88-%EA%B2%8C%EC%9D%B4%ED%8A%B8-3'
-    ];
+    const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/resources`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const data = await response.json();
+
+
+
+    return Promise.resolve(data["url"]);
   }
 
   public async updateRecommendLearningResource(stepId: string, urls: string[]): Promise<void> {

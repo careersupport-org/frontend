@@ -64,7 +64,7 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
             onChange={e => setAiCount(Number(e.target.value))}
             disabled={aiLoading}
           >
-            {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}개 추천</option>)}
+            {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}개 추천</option>)}
           </select>
           <button
             className="px-3 py-2 rounded bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] font-bold disabled:opacity-50"
@@ -80,7 +80,7 @@ const EditResourceModal: React.FC<EditResourceModalProps> = ({ open, onClose, re
               <span className="flex-1 text-[#E0E0E6] truncate">{url}</span>
               <button className="ml-2 text-[#FA5A5A] hover:text-red-400" onClick={() => handleDelete(idx)} title="삭제">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             </div>
@@ -305,11 +305,11 @@ export default function RoadMapPage() {
 
   if (!roadMap) {
     return (<>
-        <div className="min-h-screen bg-[#1A1A20] text-white p-8">
+      <div className="min-h-screen bg-[#1A1A20] text-white p-8">
         <Header />
-            <div className="animate-pulse">로드맵을 불러오는 중...</div>
+        <div className="animate-pulse">로드맵을 불러오는 중...</div>
         <Footer />
-        </div>    
+      </div>
     </>
     );
   }
@@ -331,11 +331,10 @@ export default function RoadMapPage() {
               <div className="flex gap-4">
                 <button
                   onClick={handleEditModeToggle}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    isEditMode
-                      ? 'bg-[#5AC8FA] text-[#1A1A20]'
-                      : 'bg-[#2A2A32] text-[#5AC8FA] hover:bg-[#3A3A42]'
-                  }`}
+                  className={`px-4 py-2 rounded-lg transition-colors ${isEditMode
+                    ? 'bg-[#5AC8FA] text-[#1A1A20]'
+                    : 'bg-[#2A2A32] text-[#5AC8FA] hover:bg-[#3A3A42]'
+                    }`}
                 >
                   {isEditMode ? '편집 완료' : '편집 모드'}
                 </button>
@@ -353,9 +352,8 @@ export default function RoadMapPage() {
               {roadMap.steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className={`relative bg-[#2A2A32] rounded-lg p-6 transition-all ${
-                    isEditMode ? 'cursor-default' : 'cursor-pointer hover:bg-[#3A3A42]'
-                  }`}
+                  className={`relative bg-[#2A2A32] rounded-lg p-6 transition-all ${isEditMode ? 'cursor-default' : 'cursor-pointer hover:bg-[#3A3A42]'
+                    }`}
                   onClick={() => handleStepClick(step)}
                 >
                   <div className="flex items-start justify-between">
@@ -383,7 +381,11 @@ export default function RoadMapPage() {
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <p className="text-[#A0A0B0] mb-4">{step.description}</p>
+                        <p className="text-[#A0A0B0] mb-4">
+                          {step.description.length > 50
+                            ? `${step.description.slice(0, 50)}...`
+                            : step.description}
+                        </p>
                       )}
                       {editingStep?.id === step.id ? (
                         <div className="mb-4">
@@ -450,11 +452,10 @@ export default function RoadMapPage() {
                                 handleStepMove(step.id, 'up');
                               }}
                               disabled={index === 0}
-                              className={`p-2 rounded-lg ${
-                                index === 0
-                                  ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
-                                  : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
-                              }`}
+                              className={`p-2 rounded-lg ${index === 0
+                                ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
+                                : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
+                                }`}
                             >
                               ↑
                             </button>
@@ -464,11 +465,10 @@ export default function RoadMapPage() {
                                 handleStepMove(step.id, 'down');
                               }}
                               disabled={index === roadMap.steps.length - 1}
-                              className={`p-2 rounded-lg ${
-                                index === roadMap.steps.length - 1
-                                  ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
-                                  : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
-                              }`}
+                              className={`p-2 rounded-lg ${index === roadMap.steps.length - 1
+                                ? 'bg-[#1A1A20] text-[#3A3A42] cursor-not-allowed'
+                                : 'bg-[#1A1A20] text-[#5AC8FA] hover:bg-[#2A2A32]'
+                                }`}
                             >
                               ↓
                             </button>
