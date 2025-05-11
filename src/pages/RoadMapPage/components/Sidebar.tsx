@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { RoadMapStep, LearningResource } from '../../../services/RoadmapService';
+import React, { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { RoadMapStep, LearningResource, StepPreview } from '../../../services/RoadmapService';
 import RoadMapService from '../../../services/RoadmapService';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -12,6 +12,7 @@ interface SidebarProps {
   learningResources: LearningResource[];
   isLoadingResources: boolean;
   roadMapId: string;
+  setBookMarkedSteps: Dispatch<SetStateAction<StepPreview[]>>;
 }
 
 // URL 미리보기용 임시 컴포넌트
@@ -46,7 +47,7 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   );
 };
 
-export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId }: SidebarProps) {
+export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId, setBookMarkedSteps }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
@@ -124,6 +125,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
   const handleBookmark = async () => {
     if (isBookmarking || !selectedStep) return;
     setIsBookmarking(true);
+
     setBookmarkSuccess(false);
     try {
       const newStatus = !selectedStep.isBookmarked;
@@ -132,6 +134,11 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
       );
       selectedStep.isBookmarked = newStatus;
       setBookmarkSuccess(newStatus);
+      if (newStatus) {
+        setBookMarkedSteps(prev => [...prev, { roadMapId: roadMapId, stepId: selectedStep.id, title: selectedStep.title }]);
+      } else {
+        setBookMarkedSteps(prev => prev.filter(step => step.stepId !== selectedStep.id));
+      }
       setTimeout(() => setBookmarkSuccess(false), 1200);
     } catch (e) {
       alert('북마크 상태 변경에 실패했습니다.');

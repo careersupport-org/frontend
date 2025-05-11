@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import RoadMapService, { LearningResource, RoadMap, RoadMapStep } from "../../services/RoadmapService";
+import RoadMapService, { LearningResource, RoadMap, RoadMapStep, StepPreview } from "../../services/RoadmapService";
 import Sidebar from "./components/Sidebar";
 import AIChattingTab from "./components/AIChattingTab";
 import BookmarkTab from "./components/BookmarkTab";
@@ -22,6 +22,8 @@ export default function RoadMapPage() {
     description: string;
     tags: string;
   } | null>(null);
+
+  const [bookMarkedSteps, setBookMarkedSteps] = useState<StepPreview[]>([]);
   // 추천 학습자료 관련 상태
   const [learningResources, setLearningResources] = useState<LearningResource[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState(false);
@@ -217,7 +219,7 @@ export default function RoadMapPage() {
         <div className="flex flex-row gap-8">
           {/* 왼쪽: BookMarkTab + AI 채팅 탭 */}
           <div className="w-96 flex-shrink-0 flex flex-col gap-4">
-            <BookmarkTab />
+            <BookmarkTab bookMarkedSteps={bookMarkedSteps} setBookMarkedSteps={setBookMarkedSteps} />
             <AIChattingTab roadmapId={roadMap.id} />
           </div>
           {/* 오른쪽: 기존 로드맵 컨텐츠 */}
@@ -392,6 +394,7 @@ export default function RoadMapPage() {
               learningResources={learningResources}
               isLoadingResources={isLoadingResources}
               roadMapId={roadMap.id}
+              setBookMarkedSteps={setBookMarkedSteps}
             />
             {isEditResourceModalOpen && selectedStep && (
               <EditResourceModal
