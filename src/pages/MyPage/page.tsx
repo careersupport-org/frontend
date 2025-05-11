@@ -83,8 +83,8 @@ export default function MyPage() {
                     onClick={() => navigate(`/roadmap/${roadmap.id}`)}
                   >
                     <div className="text-lg font-bold text-[#5AC8FA] mb-2">{roadmap.title}</div>
-                    <div className="text-[#A0A0B0] text-sm">생성일: {new Date(roadmap.createdAt).toLocaleDateString()}</div>
-                    <div className="text-[#A0A0B0] text-sm">수정일: {new Date(roadmap.updatedAt).toLocaleDateString()}</div>
+                    <div className="text-[#A0A0B0] text-sm">생성일: {roadmap["createdAt"]}</div>
+                    <div className="text-[#A0A0B0] text-sm">수정일: {roadmap["updatedAt"]}</div>
                   </div>
                 ))}
               </div>

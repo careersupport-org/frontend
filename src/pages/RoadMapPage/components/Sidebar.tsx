@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { RoadMapStep } from '../../../services/RoadmapService';
 import RoadMapService from '../../../services/RoadmapService';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface SidebarProps {
   selectedStep: RoadMapStep | null;
@@ -69,14 +71,15 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
           if (!isCurrentStep) break;
 
           const text = new TextDecoder().decode(value);
+
           const lines = text.split('\n');
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.slice(6));
-                if (data.content && isCurrentStep) {
-                  setDetails(prev => [...prev, data.content]);
+                if (data.token && isCurrentStep) {
+                  setDetails(prev => [...prev, data.token]);
                 }
               } catch (e) {
                 console.error('Error parsing SSE data:', e);
@@ -143,7 +146,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
   if (!selectedStep) return null;
 
   return (
-    <div className="fixed right-0 top-0 h-full w-96 bg-[#23232A] shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
+    <div className="fixed right-0 top-0 h-full w-1/3 bg-[#23232A] shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0">
       <div className="h-full flex flex-col">
         <div className="flex justify-between items-center p-6 border-b border-[#3A3A42]">
           <h3 className="text-2xl font-bold text-[#5AC8FA] flex items-center gap-2">
@@ -170,12 +173,12 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
             </button>
             {bookmarkSuccess && <span className="text-[#FFD600] text-sm ml-1">저장됨!</span>}
           </h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-[#A0A0B0] hover:text-white"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
@@ -186,7 +189,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
               <p className="text-[#A0A0B0] mb-4">{selectedStep.description}</p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {selectedStep.tags.map((tag) => (
-                  <span 
+                  <span
                     key={tag}
                     className="px-3 py-1 bg-[#2A2A32] text-[#5AC8FA] rounded-full text-sm"
                   >
@@ -197,8 +200,8 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
               <div className="border-t border-[#3A3A42] pt-6">
                 <h4 className="text-lg font-semibold text-[#E0E0E6] mb-4">상세 학습 가이드</h4>
                 <div className="bg-[#1A1A20] rounded-lg p-4">
-                  <div className="text-[#A0A0B0] whitespace-pre-wrap font-mono text-sm leading-relaxed">
-                    {details[details.length - 1] || ''}
+                  <div className="text-[#A0A0B0] prose prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{details.join('')}</ReactMarkdown>
                   </div>
                   {!details[details.length - 1] && (
                     <div className="flex items-center justify-center py-8">
@@ -217,7 +220,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
                   title="수정하기"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 00.707-.293l9.414-9.414a2 2 0 000-2.828l-3.172-3.172a2 2 0 00-2.828 0l-9.414 9.414A1 1 0 004 15.414V20z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 00.707-.293l9.414-9.414a2 2 0 000-2.828l-3.172-3.172a2 2 0 00-2.828 0l-9.414 9.414A1 1 0 004 15.414V20z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
               </div>
@@ -240,7 +243,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
                   className="w-full py-3 px-4 rounded-lg bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] transition-colors flex items-center justify-center gap-2"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>서브 로드맵으로 이동</span>
                 </button>
@@ -248,11 +251,10 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
                 <button
                   onClick={handleCreateSubRoadmap}
                   disabled={isCreatingSubRoadmap}
-                  className={`w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${
-                    isCreatingSubRoadmap
-                      ? 'bg-[#2A2A32] text-[#3A3A42] cursor-not-allowed'
-                      : 'bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA]'
-                  }`}
+                  className={`w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${isCreatingSubRoadmap
+                    ? 'bg-[#2A2A32] text-[#3A3A42] cursor-not-allowed'
+                    : 'bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA]'
+                    }`}
                 >
                   {isCreatingSubRoadmap ? (
                     <>
@@ -265,7 +267,7 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
                   ) : (
                     <>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       <span>서브 로드맵 생성</span>
                     </>
