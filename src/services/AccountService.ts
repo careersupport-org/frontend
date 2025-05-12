@@ -15,6 +15,10 @@ const AccountService = {
       body: JSON.stringify({ profile: bio })
     });
 
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to update profile'));
+    }
+
     const data = await response.json();
     return Promise.resolve(); // 임시 성공 처리
   },
@@ -25,6 +29,11 @@ const AccountService = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to fetch profile'));
+    }
+
     const data = await response.json()
     const myProfile = {
       bio: data["bio"],

@@ -173,18 +173,20 @@ export default function RoadMapPage() {
   };
 
   const handleEditModeToggle = async () => {
-    if (isEditMode && roadMap) {
-      try {
-        await RoadMapService.getInstance().update(roadMap);
-        setIsEditMode(false);
-        setEditingStep(null);
-      } catch (err) {
-        console.error('Failed to update roadmap:', err);
-        // 에러 처리 로직 추가 가능
-      }
-    } else {
-      setIsEditMode(true);
-    }
+    alert("편집 모드는 준비중입니다.")
+    return null;
+    // if (isEditMode && roadMap) {
+    //   try {
+    //     await RoadMapService.getInstance().update(roadMap);
+    //     setIsEditMode(false);
+    //     setEditingStep(null);
+    //   } catch (err) {
+    //     console.error('Failed to update roadmap:', err);
+    //     // 에러 처리 로직 추가 가능
+    //   }
+    // } else {
+    //   setIsEditMode(true);
+    // }
   };
 
   const handleSidebarClose = () => {

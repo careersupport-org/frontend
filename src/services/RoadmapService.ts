@@ -101,6 +101,11 @@ class RoadMapService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to get recommend learning resource'));
+    }
+
     const data = await response.json();
 
     const result: LearningResource[] = [];
@@ -124,17 +129,25 @@ class RoadMapService {
       body: JSON.stringify({ url: url })
     });
 
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to add recommend learning resource'));
+    }
+
     const data = await response.json();
     return Promise.resolve({ id: data["id"], url: url });
   }
 
   public async removeRecommendResource(resourceId: string): Promise<void> {
-    await fetch(`${BACKEND_API}/roadmap/step/resources/${resourceId}`, {
+    const response = await fetch(`${BACKEND_API}/roadmap/step/resources/${resourceId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to remove recommend learning resource'));
+    }
 
     return Promise.resolve();
   }
@@ -170,6 +183,10 @@ class RoadMapService {
       }
     });
 
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to create subroadmap'));
+    }
+
     const data = await response.json();
     return data.subroadmap_uid;
   }
@@ -180,6 +197,10 @@ class RoadMapService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to get my roadmaps'));
+    }
 
     const data = await response.json();
     const result: RoadMapPreview[] = [];
@@ -201,6 +222,11 @@ class RoadMapService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to get bookmarked steps'));
+    }
+
     const data = await response.json();
 
     const result: StepPreview[] = [];
@@ -221,6 +247,11 @@ class RoadMapService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to update bookmarked step'));
+    }
+
     return Promise.resolve();
   }
 }
