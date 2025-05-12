@@ -25,7 +25,9 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true)
     setMeta({ title: url });
+    setLoading(false)
   }, [url]);
 
   return (

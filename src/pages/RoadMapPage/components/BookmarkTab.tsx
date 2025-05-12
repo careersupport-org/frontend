@@ -20,7 +20,7 @@ export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: { b
     };
 
     fetchBookmarks();
-  }, []);
+  }, [setBookMarkedSteps]);
 
   return (
     <div className="bg-[#1D1D22] rounded-2xl overflow-hidden">

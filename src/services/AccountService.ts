@@ -19,8 +19,11 @@ const AccountService = {
       return Promise.reject(new Error('Failed to update profile'));
     }
 
-    const data = await response.json();
-    return Promise.resolve(); // 임시 성공 처리
+    if (response.status === 200) {
+      return Promise.resolve()
+    }
+
+    return Promise.reject(new Error('Failed to update profile'));
   },
 
   getMyProfile: async (): Promise<MyProfile> => {

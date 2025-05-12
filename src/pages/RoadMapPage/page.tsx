@@ -31,7 +31,7 @@ export default function RoadMapPage() {
 
   useEffect(() => {
     if (!id) return;
-
+    setIsEditMode(false)
     const fetchRoadMap = async () => {
       try {
         const data = await RoadMapService.getInstance().getRoadMap(id);

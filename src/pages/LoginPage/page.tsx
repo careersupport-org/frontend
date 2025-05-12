@@ -1,14 +1,10 @@
-import React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 const BACKEND_API = process.env.REACT_APP_BACKEND_API;
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+
 
   const handleKakaoLogin = () => {
     // 카카오 OAuth 로그인 페이지로 리다이렉트

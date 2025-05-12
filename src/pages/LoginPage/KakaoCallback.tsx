@@ -67,7 +67,7 @@ export default function KakaoCallback() {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [login, navigate, searchParams]);
 
     return (
         <div className="min-h-screen bg-[#17171C] text-white font-sans flex items-center justify-center">
