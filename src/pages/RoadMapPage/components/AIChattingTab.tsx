@@ -44,8 +44,11 @@ export default function AIChattingTab({ roadmapId }: AIChattingTabProps) {
                   const newMessages = [...prev];
                   const lastMessage = newMessages[newMessages.length - 1];
                   if (lastMessage && lastMessage.role === 'assistant') {
-                    lastMessage.content = aiResponse;
-                    return [...newMessages];
+                    return newMessages.map((msg, idx) =>
+                      idx === newMessages.length - 1
+                        ? { ...msg, content: aiResponse }
+                        : msg
+                    );
                   } else {
                     return [...newMessages, { role: 'assistant', content: aiResponse }];
                   }

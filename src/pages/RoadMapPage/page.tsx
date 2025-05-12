@@ -81,9 +81,9 @@ export default function RoadMapPage() {
     fetchLearningResources();
   }, [selectedStep]);
 
-  const handleSaveResources = async (urls: LearningResource[]) => {
-    if (!selectedStep) return;
-  };
+  // const handleSaveResources = async (urls: LearningResource[]) => {
+  //   if (!selectedStep) return;
+  // };
 
   const handleStepClick = (step: RoadMapStep) => {
     if (!isEditMode) {
