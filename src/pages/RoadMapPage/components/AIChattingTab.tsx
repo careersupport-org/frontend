@@ -3,7 +3,8 @@ import React, { useState, useRef } from 'react';
 import RoadMapService from '../../../services/RoadmapService';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
+import { UnauthorizedException } from '../../../common/exceptions';
+import { useNavigate } from 'react-router-dom';
 interface AIChattingTabProps {
   roadmapId: string;
 }
@@ -16,7 +17,7 @@ export default function AIChattingTab({ roadmapId }: AIChattingTabProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const navigate = useNavigate();
   const handlePresetClick = (preset: string) => {
     if (!isLoading && preset.trim()) {
       setMessages(prev => [...prev, { role: 'user', content: preset }]);
@@ -59,6 +60,10 @@ export default function AIChattingTab({ roadmapId }: AIChattingTabProps) {
         }
       }
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
       console.error('Error calling AI:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: '죄송합니다. 오류가 발생했습니다.' }]);
     } finally {

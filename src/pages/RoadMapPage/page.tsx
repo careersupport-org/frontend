@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar";
 import AIChattingTab from "./components/AIChattingTab";
 import BookmarkTab from "./components/BookmarkTab";
 import EditResourceModal from './components/EditResourceModal';
+import { ForbiddenException, UnauthorizedException, NotFoundException } from "../../common/exceptions";
 
 export default function RoadMapPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,9 +42,20 @@ export default function RoadMapPage() {
         } else {
           setError('로드맵을 찾을 수 없습니다.');
         }
-      } catch (err) {
+      } catch (error) {
+        if (error instanceof UnauthorizedException) {
+          alert("로그인 후 이용 가능한 서비스입니다.");
+          navigate("/login");
+        }
+        if (error instanceof ForbiddenException) {
+          alert("자신의 로드맵만 조회할 수 있습니다.");
+          navigate("/");
+        }
+        if (error instanceof NotFoundException) {
+          navigate("/not-found");
+        }
         setError('로드맵을 불러오는데 실패했습니다.');
-        console.error('Failed to fetch roadmap:', err);
+        console.error('Failed to fetch roadmap:', error);
       }
     };
 
@@ -73,6 +85,14 @@ export default function RoadMapPage() {
         const resources = await RoadMapService.getInstance().getRecommendLearningResource(selectedStep.id);
         setLearningResources(resources);
       } catch (error) {
+        if (error instanceof UnauthorizedException) {
+          alert("로그인 후 이용 가능한 서비스입니다.");
+          navigate("/login");
+        }
+        if (error instanceof ForbiddenException) {
+          alert("자신의 로드맵만 조회할 수 있습니다.");
+          navigate("/");
+        }
         setLearningResources([]);
       } finally {
         setIsLoadingResources(false);

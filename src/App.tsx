@@ -32,6 +32,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/my-roadmaps" element={<MyRoadMapsPage />} />
+        <Route path="/not-found" element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>

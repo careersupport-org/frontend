@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RoadMapService, { StepPreview } from '../../../services/RoadmapService';
-
+import { ForbiddenException, UnauthorizedException } from '../../../common/exceptions';
 export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: { bookMarkedSteps: StepPreview[], setBookMarkedSteps: (steps: StepPreview[]) => void }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -13,6 +13,14 @@ export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: { b
         const bookmarks = await RoadMapService.getInstance().getBookMarks();
         setBookMarkedSteps(bookmarks);
       } catch (error) {
+        if (error instanceof UnauthorizedException) {
+          alert("로그인 후 이용 가능한 서비스입니다.");
+          navigate("/login");
+        }
+        if (error instanceof ForbiddenException) {
+          alert("자신의 로드맵만 조회할 수 있습니다.");
+          navigate("/");
+        }
         console.error('북마크를 불러오는데 실패했습니다:', error);
       } finally {
         setIsLoading(false);

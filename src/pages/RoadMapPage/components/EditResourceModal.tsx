@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import RoadMapService from '../../../services/RoadmapService';
+import { ForbiddenException, UnauthorizedException } from '../../../common/exceptions';
+import { useNavigate } from 'react-router-dom';
 
 interface EditResourceModalProps {
     isOpen: boolean;
@@ -12,19 +14,45 @@ interface EditResourceModalProps {
 export default function EditResourceModal({ isOpen, onClose, stepId, initialResources, onSave }: EditResourceModalProps) {
     const [resources, setResources] = useState<{ id: string; url: string }[]>(initialResources);
     const [newUrl, setNewUrl] = useState('');
+    const navigate = useNavigate();
 
     const handleAddResource = async () => {
         if (newUrl.trim()) {
-            const resource = await RoadMapService.getInstance().addRecommendResource(stepId, newUrl.trim());
-            setResources([...resources, resource]);
-            setNewUrl('');
+            try {
+                const resource = await RoadMapService.getInstance().addRecommendResource(stepId, newUrl.trim());
+                setResources([...resources, resource]);
+                setNewUrl('');
+            } catch (error) {
+                if (error instanceof UnauthorizedException) {
+                    alert("로그인 후 이용 가능한 서비스입니다.");
+                    navigate("/login");
+                }
+                if (error instanceof ForbiddenException) {
+                    alert("자신의 로드맵만 추가할 수 있습니다.");
+                    navigate("/");
+                }
+                console.error('Failed to add resource:', error);
+            }
         }
     };
 
     const handleRemoveResource = async (resource_id: string) => {
-        if (window.confirm('정말 삭제하시겠습니까?')) {
+        if (!window.confirm('정말 삭제하시겠습니까?')) {
+            return;
+        }
+        try {
             await RoadMapService.getInstance().removeRecommendResource(resource_id);
             setResources(resources.filter(resource => resource.id !== resource_id));
+        } catch (error) {
+            if (error instanceof UnauthorizedException) {
+                alert("로그인 후 이용 가능한 서비스입니다.");
+                navigate("/login");
+            }
+            if (error instanceof ForbiddenException) {
+                alert("자신의 로드맵만 제거할 수 있습니다.");
+                navigate("/");
+            }
+            console.error('Failed to remove resource:', error);
         }
     };
 

@@ -4,6 +4,8 @@ import RoadMapService from '../../../services/RoadmapService';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { UnauthorizedException } from '../../../common/exceptions';
+import { ForbiddenException } from '../../../common/exceptions';
 
 interface SidebarProps {
   selectedStep: RoadMapStep | null;
@@ -113,6 +115,14 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
       alert('서브 로드맵이 성공적으로 생성되었습니다!');
       navigate(`/roadmap/${newSubRoadmapId}`);
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵에 대해서만 서브 로드맵을 생성할 수 있습니다.");
+        navigate("/");
+      }
       console.error('Failed to create sub roadmap:', error);
       alert('서브 로드맵 생성에 실패했습니다.');
     } finally {
@@ -137,6 +147,14 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
       onStepUpdate(updatedStep);
       alert('서브 로드맵이 삭제되었습니다.');
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵에 대해서만 서브 로드맵을 삭제할 수 있습니다.");
+        navigate("/");
+      }
       console.error('Failed to delete sub roadmap:', error);
       alert('서브 로드맵 삭제에 실패했습니다.');
     }
@@ -160,7 +178,16 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
         setBookMarkedSteps(prev => prev.filter(step => step.stepId !== selectedStep.id));
       }
       setTimeout(() => setBookmarkSuccess(false), 1200);
-    } catch (e) {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵에 대해서만 북마크를 추가할 수 있습니다.");
+        navigate("/");
+      }
+      console.error('Failed to update bookmark status:', error);
       alert('북마크 상태 변경에 실패했습니다.');
     } finally {
       setIsBookmarking(false);
