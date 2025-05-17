@@ -72,17 +72,17 @@ export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: Boo
       </button>
 
       {isExpanded && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1D1D22] rounded-lg shadow-lg z-10">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1D1D22] rounded-lg shadow-lg z-10 max-h-[300px] overflow-y-auto">
           {isLoading ? (
             <div className="p-4 text-[#A0A0B0] text-center">북마크를 불러오는 중...</div>
           ) : bookMarkedSteps.length === 0 ? (
             <div className="p-4 text-[#A0A0B0] text-center">북마크된 단계가 없습니다</div>
           ) : (
-            <div className="max-h-96 overflow-y-auto">
+            <div>
               {bookMarkedSteps.map((step) => (
                 <div
                   key={step.stepId}
-                  className="p-4 hover:bg-[#23232A] transition cursor-pointer group"
+                  className="p-4 hover:bg-[#23232A] transition cursor-pointer group border-b border-[#23232A] last:border-b-0"
                   onClick={() => navigate(`/roadmap/${step.roadMapId}?step=${step.stepId}`)}
                 >
                   <div className="flex items-center justify-between">
