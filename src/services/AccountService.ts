@@ -1,3 +1,5 @@
+import { AuthService } from "./AuthService";
+
 interface MyProfile {
   bio: string;
 }
@@ -27,9 +29,11 @@ const AccountService = {
   },
 
   getMyProfile: async (): Promise<MyProfile> => {
+    const user = AuthService.getUser();
+
     const response = await fetch(`${BACKEND_API}/oauth/me/profile`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 

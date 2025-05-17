@@ -3,8 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthService } from '../services/AuthService';
 import logoDark from "../logo-dark.png";
 
-const DEFAULT_PROFILE = "https://www.gravatar.com/avatar/?d=mp&f=y";
-
 const Header: React.FC = () => {
     const navigate = useNavigate();
     const user = AuthService.getUser();
@@ -37,7 +35,7 @@ const Header: React.FC = () => {
                         className="flex items-center gap-2 font-semibold text-[#E0E0E6] px-4 py-2 rounded-lg border border-[#23232A] bg-transparent hover:bg-[#23232A] transition"
                         onClick={() => setDropdownOpen((open) => !open)}
                     >
-                        <img src={DEFAULT_PROFILE} alt="profile" className="w-7 h-7 rounded-full bg-[#23232A] object-cover" />
+                        <img src={user?.profileImage} alt="profile" className="w-7 h-7 rounded-full bg-[#23232A] object-cover" />
                         {user?.nickname}님
                     </button>
                     {dropdownOpen && (

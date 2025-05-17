@@ -1,3 +1,5 @@
+import { AuthService } from "./AuthService";
+
 export interface RoadMapStep {
   id: string;
   step: number;
@@ -54,10 +56,11 @@ class RoadMapService {
   }
 
   public async createRoadMap(job: string, etc: string): Promise<string> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${user?.token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ target_job: job, instruct: etc })
@@ -68,9 +71,10 @@ class RoadMapService {
   }
 
   public async getRoadMap(id: string): Promise<RoadMap | null> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/${id}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
     const data = await response.json();
@@ -78,9 +82,10 @@ class RoadMapService {
   }
 
   public async getStepDetail(stepId: string): Promise<ReadableStream<Uint8Array>> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/guide`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
@@ -96,9 +101,10 @@ class RoadMapService {
   }
 
   public async getRecommendLearningResource(stepId: string): Promise<LearningResource[]> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/resources`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
@@ -120,10 +126,11 @@ class RoadMapService {
   }
 
   public async addRecommendResource(stepId: string, url: string): Promise<LearningResource> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/resources`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${user?.token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ url: url })
@@ -138,10 +145,11 @@ class RoadMapService {
   }
 
   public async removeRecommendResource(resourceId: string): Promise<void> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/resources/${resourceId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       },
     });
 
@@ -159,11 +167,12 @@ class RoadMapService {
   }
 
   public async callAI(roadmapId: string, userInput: string): Promise<ReadableStream<Uint8Array>> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/${roadmapId}/assistant`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       },
       body: JSON.stringify({ user_input: userInput })
     });
@@ -176,10 +185,11 @@ class RoadMapService {
   }
 
   public async createSubRoadMap(stepId: string): Promise<string> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/subroadmap`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
@@ -192,9 +202,10 @@ class RoadMapService {
   }
 
   public async getMyRoadMaps(): Promise<RoadMapPreview[]> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
@@ -217,9 +228,10 @@ class RoadMapService {
   }
 
   public async getBookMarks(): Promise<StepPreview[]> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/bookmarks`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
@@ -241,10 +253,11 @@ class RoadMapService {
   }
 
   public async updateBookMarkStatus(stepId: string): Promise<void> {
+    const user = AuthService.getUser();
     const response = await fetch(`${BACKEND_API}/roadmap/step/${stepId}/bookmark`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${user?.token}`
       }
     });
 
