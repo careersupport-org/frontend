@@ -125,10 +125,11 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
       }
       if (error instanceof BadRequestException) {
         alert(error.message);
-        navigate("/");
       }
-      console.error('Failed to create sub roadmap:', error);
-      alert('서브 로드맵 생성에 실패했습니다.');
+      else {
+        console.error('Failed to create sub roadmap:', error);
+        alert('서브 로드맵 생성에 실패했습니다.');
+      }
     } finally {
       setIsCreatingSubRoadmap(false);
     }
