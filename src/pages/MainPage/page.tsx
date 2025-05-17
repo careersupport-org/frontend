@@ -2,11 +2,10 @@ import Header from "../../components/Header";
 import MainBanner from "./components/MainBanner";
 import Footer from "../../components/Footer";
 import DescriptionCard from "./components/DescriptionCard";
-import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import { AuthService } from "../../services/AuthService";
 export default function MainPage() {
-  const { user } = useAuth();
+  const user = AuthService.getUser();
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#17171C] text-white font-sans">

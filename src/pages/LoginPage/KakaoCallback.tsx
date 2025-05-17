@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { AuthService } from "../../services/AuthService";
 
 const BACKEND_API = process.env.REACT_APP_BACKEND_API;
 
 export default function KakaoCallback() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { login } = useAuth();
 
     useEffect(() => {
         const code = searchParams.get('code');
@@ -29,16 +28,13 @@ export default function KakaoCallback() {
             .then((data) => {
                 if (!isMounted) return;
 
-                // JWT 토큰을 localStorage에 저장
-                localStorage.setItem('token', data.access_token);
-
-                // 사용자 정보 저장
-                login({
+                AuthService.setUser({
                     id: data.user_id,
-                    nickname: data.nickname
+                    nickname: data.nickname,
+                    profileImage: data.profile_image,
+                    token: data.access_token
                 });
 
-                // 메인 페이지로 리다이렉트
                 navigate('/');
             })
             .catch((error) => {

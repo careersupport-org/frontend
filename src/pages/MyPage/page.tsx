@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AccountService from "../../services/AccountService";
 import RoadMapService, { RoadMapPreview } from "../../services/RoadmapService";
+import { AuthService } from "../../services/AuthService";
 
 export default function MyPage() {
-  const { user, logout } = useAuth();
+  const user = AuthService.getUser();
   const [bio, setBio] = useState("");
   const [myRoadmaps, setMyRoadmaps] = useState<RoadMapPreview[]>([]);
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function MyPage() {
 
   const handleWithdraw = () => {
     // 실제 회원탈퇴 로직 필요 (API 연동 등)
-    logout();
+    AuthService.logout();
     navigate("/");
   };
 
@@ -97,7 +97,7 @@ export default function MyPage() {
             <div className="text-2xl font-semibold text-[#E0E0E6] mb-2">계정 관리</div>
             <div className="flex gap-6 justify-center">
               <button
-                onClick={logout}
+                onClick={() => AuthService.logout()}
                 className="bg-[#23232A] text-[#E0E0E6] px-8 py-3 text-lg rounded-full font-semibold hover:bg-[#3BAFDA] border border-[#5AC8FA] transition"
               >
                 로그아웃

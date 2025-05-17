@@ -188,7 +188,7 @@ class RoadMapService {
     }
 
     const data = await response.json();
-    return data.subroadmap_uid;
+    return data.id;
   }
 
   public async getMyRoadMaps(): Promise<RoadMapPreview[]> {
