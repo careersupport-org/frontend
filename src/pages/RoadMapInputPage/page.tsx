@@ -9,6 +9,7 @@ export default function RoadMapInputPage() {
   const [bioExists, setBioExists] = useState<boolean | null>(null);
   const [job, setJob] = useState("");
   const [etc, setEtc] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const roadmapService = RoadMapService.getInstance();
   
@@ -24,11 +25,14 @@ export default function RoadMapInputPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      const id = await roadmapService.createRoadMap( job, etc );
+      const id = await roadmapService.createRoadMap(job, etc);
       navigate(`/roadmap/${id}`);
     } catch (err) {
       alert("로드맵 생성에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,6 +58,7 @@ export default function RoadMapInputPage() {
               onChange={e => setJob(e.target.value)}
               className="bg-[#23232A] rounded px-4 py-3 text-white placeholder-[#A0A0B0] focus:outline-none focus:ring-2 focus:ring-[#5AC8FA]"
               required
+              disabled={isLoading}
             />
             <label className="text-lg font-semibold text-[#E0E0E6] mt-2">기타 지시사항</label>
             <textarea
@@ -61,12 +66,21 @@ export default function RoadMapInputPage() {
               value={etc}
               onChange={e => setEtc(e.target.value)}
               className="bg-[#23232A] rounded px-4 py-3 text-white placeholder-[#A0A0B0] focus:outline-none focus:ring-2 focus:ring-[#5AC8FA] min-h-[80px]"
+              disabled={isLoading}
             />
             <button
               type="submit"
-              className="bg-[#5AC8FA] text-[#17171C] py-3 rounded-full font-semibold hover:bg-[#3BAFDA] transition text-lg mt-2"
+              className="bg-[#5AC8FA] text-[#17171C] py-3 rounded-full font-semibold hover:bg-[#3BAFDA] transition text-lg mt-2 relative"
+              disabled={isLoading}
             >
-              로드맵 생성하기
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#17171C] mr-2"></div>
+                  로드맵 생성 중...
+                </div>
+              ) : (
+                "로드맵 생성하기"
+              )}
             </button>
           </form>
         </div>
