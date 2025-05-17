@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoadMapInputPage from "./pages/RoadMapInputPage/page";
 import RoadMapPage from "./pages/RoadMapPage/page";
 import MyRoadMapsPage from "./pages/MyRoadMapsPage/page";
+import NotFoundPage from "./pages/NotFoundPage/page";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/my-roadmaps" element={<MyRoadMapsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
