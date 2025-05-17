@@ -252,6 +252,10 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 400) {
+      const data = await response.json();
+      return Promise.reject(new BadRequestException(data["message"]));
+    }
     if (response.status === 401) {
       return Promise.reject(new UnauthorizedException());
     }

@@ -4,7 +4,7 @@ import RoadMapService from '../../../services/RoadmapService';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { UnauthorizedException } from '../../../common/exceptions';
+import { BadRequestException, UnauthorizedException } from '../../../common/exceptions';
 import { ForbiddenException } from '../../../common/exceptions';
 
 interface SidebarProps {
@@ -121,6 +121,10 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
       }
       if (error instanceof ForbiddenException) {
         alert("자신의 로드맵에 대해서만 서브 로드맵을 생성할 수 있습니다.");
+        navigate("/");
+      }
+      if (error instanceof BadRequestException) {
+        alert(error.message);
         navigate("/");
       }
       console.error('Failed to create sub roadmap:', error);
