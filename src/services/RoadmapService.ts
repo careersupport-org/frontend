@@ -1,5 +1,5 @@
 import { AuthService } from "./AuthService";
-
+import { NotFoundException } from "../common/exceptions";
 export interface RoadMapStep {
   id: string;
   step: number;
@@ -66,6 +66,9 @@ class RoadMapService {
       body: JSON.stringify({ target_job: job, instruct: etc })
     });
 
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to create roadmap'));
+    }
     const data = await response.json();
     return Promise.resolve(data["id"]);
   }
@@ -77,6 +80,16 @@ class RoadMapService {
         'Authorization': `Bearer ${user?.token}`
       }
     });
+
+
+    if (response.status === 404) {
+      return Promise.reject(new NotFoundException());
+    }
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to get roadmap'));
+    }
+
     const data = await response.json();
     return Promise.resolve(data);
   }
@@ -88,6 +101,10 @@ class RoadMapService {
         'Authorization': `Bearer ${user?.token}`
       }
     });
+
+    if (response.status === 404) {
+      throw new NotFoundException();
+    }
 
     if (!response.body) {
       throw new Error('Response body is null');

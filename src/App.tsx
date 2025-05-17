@@ -1,6 +1,4 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthService } from './services/AuthService';
 import MainPage from "./pages/MainPage/page";
 import LoginPage from "./pages/LoginPage/page";
 import KakaoCallback from "./pages/LoginPage/KakaoCallback";
