@@ -55,34 +55,38 @@ export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: Boo
   };
 
   return (
-    <div className="bookmark-tab relative">
-      <button
+    <div className="bookmark-tab bg-[#1D1D22] rounded-2xl overflow-hidden">
+      <div
+        className="bg-[#23232A] p-4 cursor-pointer hover:bg-[#2A2A32] transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full bg-[#1D1D22] text-[#E0E0E6] p-4 rounded-lg hover:bg-[#23232A] transition flex items-center justify-between"
       >
-        <span className="font-semibold">북마크</span>
-        <svg
-          className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+        <h2 className="text-xl font-bold text-[#5AC8FA] flex items-center justify-between">
+          <span>북마크</span>
+          <svg
+            className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </h2>
+      </div>
 
-      {isExpanded && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1D1D22] rounded-lg shadow-lg z-10 max-h-[300px] overflow-y-auto">
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[300px]' : 'max-h-0'}`}
+      >
+        <div className="p-4">
           {isLoading ? (
-            <div className="p-4 text-[#A0A0B0] text-center">북마크를 불러오는 중...</div>
+            <div className="text-[#A0A0B0] text-center">북마크를 불러오는 중...</div>
           ) : bookMarkedSteps.length === 0 ? (
-            <div className="p-4 text-[#A0A0B0] text-center">북마크된 단계가 없습니다</div>
+            <div className="text-[#A0A0B0] text-center">북마크된 단계가 없습니다</div>
           ) : (
-            <div>
+            <div className="space-y-2">
               {bookMarkedSteps.map((step) => (
                 <div
                   key={step.stepId}
-                  className="p-4 hover:bg-[#23232A] transition cursor-pointer group border-b border-[#23232A] last:border-b-0"
+                  className="p-3 hover:bg-[#23232A] transition cursor-pointer group rounded-lg"
                   onClick={() => navigate(`/roadmap/${step.roadMapId}?step=${step.stepId}`)}
                 >
                   <div className="flex items-center justify-between">
@@ -104,7 +108,7 @@ export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: Boo
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
