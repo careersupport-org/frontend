@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
 import RoadMapService, { RoadMapPreview } from "../../services/RoadmapService";
 import { ForbiddenException, UnauthorizedException } from "../../common/exceptions";
 export default function MyRoadMapsPage() {
-  const [myRoadmaps, setMyRoadmaps] = useState<RoadMapPreview[]>([]);
+  const [roadmaps, setRoadmaps] = useState<RoadMapPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchRoadmaps = async () => {
+  const fetchRoadmaps = useCallback(async () => {
     try {
-      const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
-      setMyRoadmaps(roadmaps);
+      const data = await RoadMapService.getInstance().getMyRoadMaps();
+      setRoadmaps(data);
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         alert("로그인 후 이용 가능한 서비스입니다.");
         navigate("/login");
       }
-      console.error("로드맵을 불러오는데 실패했습니다:", error);
+      console.error('Failed to fetch roadmaps:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchRoadmaps();
-  }, []);
+  }, [fetchRoadmaps]);
 
   const handleDelete = async (e: React.MouseEvent, roadmapId: string) => {
     e.stopPropagation(); // 이벤트 버블링 방지
@@ -71,7 +71,7 @@ export default function MyRoadMapsPage() {
             <div className="flex justify-center items-center h-64">
               <div className="text-[#5AC8FA] animate-pulse">로드맵을 불러오는 중...</div>
             </div>
-          ) : myRoadmaps.length === 0 ? (
+          ) : roadmaps.length === 0 ? (
             <div className="bg-[#1D1D22] rounded-2xl p-8 text-center">
               <div className="text-xl text-[#A0A0B0] mb-4">아직 생성한 로드맵이 없습니다</div>
               <button
@@ -83,7 +83,7 @@ export default function MyRoadMapsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {myRoadmaps.map((roadmap) => (
+              {roadmaps.map((roadmap) => (
                 <div
                   key={roadmap.id}
                   className="bg-[#1D1D22] rounded-2xl p-6 cursor-pointer hover:bg-[#23232A] transition relative group"

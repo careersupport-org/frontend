@@ -1,93 +1,110 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RoadMapService, { StepPreview } from '../../../services/RoadmapService';
 import { ForbiddenException, UnauthorizedException } from '../../../common/exceptions';
-export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: { bookMarkedSteps: StepPreview[], setBookMarkedSteps: (steps: StepPreview[]) => void }) {
+
+interface BookmarkTabProps {
+  bookMarkedSteps: StepPreview[];
+  setBookMarkedSteps: React.Dispatch<React.SetStateAction<StepPreview[]>>;
+}
+
+export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: BookmarkTabProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(true);
   const navigate = useNavigate();
 
+  const fetchBookmarks = useCallback(async () => {
+    try {
+      const bookmarks = await RoadMapService.getInstance().getBookMarks();
+      setBookMarkedSteps(bookmarks);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵만 조회할 수 있습니다.");
+        navigate("/");
+      }
+      console.error('북마크를 불러오는데 실패했습니다:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, setBookMarkedSteps]);
+
   useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        const bookmarks = await RoadMapService.getInstance().getBookMarks();
-        setBookMarkedSteps(bookmarks);
-      } catch (error) {
-        if (error instanceof UnauthorizedException) {
-          alert("로그인 후 이용 가능한 서비스입니다.");
-          navigate("/login");
-        }
-        if (error instanceof ForbiddenException) {
-          alert("자신의 로드맵만 조회할 수 있습니다.");
-          navigate("/");
-        }
-        console.error('북마크를 불러오는데 실패했습니다:', error);
-      } finally {
-        setIsLoading(false);
+    fetchBookmarks();
+  }, [fetchBookmarks]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.bookmark-tab')) {
+        setIsExpanded(false);
       }
     };
 
-    fetchBookmarks();
-  }, [setBookMarkedSteps]);
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  const handleRemoveBookmark = (stepId: string) => {
+    setBookMarkedSteps(prev => prev.filter(step => step.stepId !== stepId));
+  };
 
   return (
-    <div className="bg-[#1D1D22] rounded-2xl overflow-hidden">
-      <div
-        className="flex items-center justify-between bg-[#23232A] p-4 cursor-pointer hover:bg-[#2A2A32] transition-colors"
+    <div className="bookmark-tab relative">
+      <button
         onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full bg-[#1D1D22] text-[#E0E0E6] p-4 rounded-lg hover:bg-[#23232A] transition flex items-center justify-between"
       >
-        <h2 className="text-xl font-bold text-[#5AC8FA]">즐겨찾기</h2>
+        <span className="font-semibold">북마크</span>
         <svg
-          className={`w-5 h-5 transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
-      </div>
-      <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[400px]' : 'max-h-0'
-          }`}
-      >
-        <div className="p-6">
+      </button>
+
+      {isExpanded && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1D1D22] rounded-lg shadow-lg z-10">
           {isLoading ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="text-[#5AC8FA] animate-pulse">북마크를 불러오는 중...</div>
-            </div>
+            <div className="p-4 text-[#A0A0B0] text-center">북마크를 불러오는 중...</div>
           ) : bookMarkedSteps.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-[#A0A0B0] mb-2">아직 북마크한 단계가 없습니다</div>
-              <div className="text-sm text-[#A0A0B0]">
-                로드맵의 단계를 북마크하여 빠르게 접근할 수 있습니다
-              </div>
-            </div>
+            <div className="p-4 text-[#A0A0B0] text-center">북마크된 단계가 없습니다</div>
           ) : (
-            <div className="space-y-3">
-              {bookMarkedSteps.map((bookmark) => (
+            <div className="max-h-96 overflow-y-auto">
+              {bookMarkedSteps.map((step) => (
                 <div
-                  key={bookmark.roadMapId + '-' + bookmark.stepId}
-                  className="bg-[#23232A] rounded-lg p-4 cursor-pointer hover:bg-[#2A2A32] transition"
-                  onClick={() => {
-                    navigate(`/roadmap/${bookmark.roadMapId}?step=${bookmark.stepId}`);
-                  }}
+                  key={step.stepId}
+                  className="p-4 hover:bg-[#23232A] transition cursor-pointer group"
+                  onClick={() => navigate(`/roadmap/${step.roadMapId}?step=${step.stepId}`)}
                 >
-                  <div className="flex items-center gap-3">
-                    <svg
-                      className="w-5 h-5 text-[#5AC8FA]"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                  <div className="flex items-center justify-between">
+                    <div className="text-[#E0E0E6] truncate">{step.title}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveBookmark(step.stepId);
+                      }}
+                      className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                    </svg>
-                    <span className="text-[#E0E0E6]">{bookmark.title}</span>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

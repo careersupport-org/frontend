@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ export default function MyPage() {
   const [myRoadmaps, setMyRoadmaps] = useState<RoadMapPreview[]>([]);
   const navigate = useNavigate();
 
-  const fetchRoadmaps = async () => {
+  const fetchRoadmaps = useCallback(async () => {
     try {
       const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
       setMyRoadmaps(roadmaps);
@@ -26,7 +26,7 @@ export default function MyPage() {
       alert("로드맵을 불러오는데 실패했습니다.");
       console.error("로드맵을 불러오는데 실패했습니다:", error);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     // 마이페이지 진입 시 프로필 불러오기
@@ -39,7 +39,7 @@ export default function MyPage() {
       });
     // 내 로드맵 불러오기
     fetchRoadmaps();
-  }, []);
+  }, [fetchRoadmaps]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

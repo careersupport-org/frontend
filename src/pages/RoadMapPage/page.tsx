@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -30,37 +30,37 @@ export default function RoadMapPage() {
   const [isLoadingResources, setIsLoadingResources] = useState(false);
   const [isEditResourceModalOpen, setIsEditResourceModalOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchRoadMap = useCallback(async () => {
     if (!id) return;
-    setIsEditMode(false)
-    const fetchRoadMap = async () => {
-      try {
-        const data = await RoadMapService.getInstance().getRoadMap(id);
-        if (data) {
-          setRoadMap(data);
-          setError(null);
-        } else {
-          setError('로드맵을 찾을 수 없습니다.');
-        }
-      } catch (error) {
-        if (error instanceof UnauthorizedException) {
-          alert("로그인 후 이용 가능한 서비스입니다.");
-          navigate("/login");
-        }
-        if (error instanceof ForbiddenException) {
-          alert("자신의 로드맵만 조회할 수 있습니다.");
-          navigate("/");
-        }
-        if (error instanceof NotFoundException) {
-          navigate("/not-found");
-        }
-        setError('로드맵을 불러오는데 실패했습니다.');
-        console.error('Failed to fetch roadmap:', error);
+    setIsEditMode(false);
+    try {
+      const data = await RoadMapService.getInstance().getRoadMap(id);
+      if (data) {
+        setRoadMap(data);
+        setError(null);
+      } else {
+        setError('로드맵을 찾을 수 없습니다.');
       }
-    };
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (err instanceof ForbiddenException) {
+        alert("자신의 로드맵만 조회할 수 있습니다.");
+        navigate("/");
+      }
+      if (err instanceof NotFoundException) {
+        navigate("/not-found");
+      }
+      setError('로드맵을 불러오는데 실패했습니다.');
+      console.error('Failed to fetch roadmap:', err);
+    }
+  }, [id, navigate]);
 
+  useEffect(() => {
     fetchRoadMap();
-  }, [id]);
+  }, [fetchRoadMap]);
 
   // 쿼리스트링 stepId로 사이드바 자동 오픈 및 step이 없으면 닫힘
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function RoadMapPage() {
     } else {
       setSelectedStep(null);
     }
-  }, [roadMap, searchParams]);
+  }, [roadMap, searchParams, navigate]);
 
   // 선택된 스텝이 바뀔 때마다 추천 학습자료 fetch
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function RoadMapPage() {
       }
     };
     fetchLearningResources();
-  }, [selectedStep]);
+  }, [selectedStep, navigate]);
 
   // const handleSaveResources = async (urls: LearningResource[]) => {
   //   if (!selectedStep) return;
