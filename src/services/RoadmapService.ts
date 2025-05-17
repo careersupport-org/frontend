@@ -1,5 +1,5 @@
 import { AuthService } from "./AuthService";
-import { NotFoundException } from "../common/exceptions";
+import { NotFoundException, UnauthorizedException, BadRequestException, ForbiddenException } from "../common/exceptions";
 export interface RoadMapStep {
   id: string;
   step: number;
@@ -66,6 +66,13 @@ class RoadMapService {
       body: JSON.stringify({ target_job: job, instruct: etc })
     });
 
+    if (response.status === 400) {
+      return Promise.reject(new BadRequestException("로드맵은 서브 로드맵을 포함해서 3개만 생성가능합니다."));
+    }
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+
     if (!response.ok) {
       return Promise.reject(new Error('Failed to create roadmap'));
     }
@@ -81,7 +88,12 @@ class RoadMapService {
       }
     });
 
-
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (response.status === 404) {
       return Promise.reject(new NotFoundException());
     }
@@ -102,8 +114,14 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (response.status === 404) {
-      throw new NotFoundException();
+      return Promise.reject(new NotFoundException());
     }
 
     if (!response.body) {
@@ -125,6 +143,12 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to get recommend learning resource'));
     }
@@ -153,6 +177,12 @@ class RoadMapService {
       body: JSON.stringify({ url: url })
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to add recommend learning resource'));
     }
@@ -170,6 +200,12 @@ class RoadMapService {
       },
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to remove recommend learning resource'));
     }
@@ -194,6 +230,12 @@ class RoadMapService {
       body: JSON.stringify({ user_input: userInput })
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.body) {
       throw new Error('Response body is null');
     }
@@ -210,6 +252,12 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to create subroadmap'));
     }
@@ -252,6 +300,12 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to get bookmarked steps'));
     }
@@ -278,6 +332,12 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to update bookmarked step'));
     }
@@ -294,6 +354,12 @@ class RoadMapService {
       }
     });
 
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
+    if (response.status === 403) {
+      return Promise.reject(new ForbiddenException());
+    }
     if (!response.ok) {
       return Promise.reject(new Error('Failed to delete roadmap'));
     }
