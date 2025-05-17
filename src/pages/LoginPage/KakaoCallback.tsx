@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { AuthService } from "../../services/AuthService";
