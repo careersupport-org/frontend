@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthService } from "../../services/AuthService";
 
@@ -7,14 +7,19 @@ const BACKEND_API = process.env.REACT_APP_BACKEND_API;
 export default function KakaoCallback() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-
+    const [isProcessing, setIsProcessing] = useState(false);
+    
     useEffect(() => {
         const code = searchParams.get('code');
         if (!code) {
             navigate('/login');
             return;
         }
-
+        
+        // 이미 처리 중이면 중복 요청 방지
+        if (isProcessing) return;
+        
+        setIsProcessing(true);
         let isMounted = true;
 
         // 백엔드로 code 전송
@@ -42,12 +47,17 @@ export default function KakaoCallback() {
 
                 alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
                 navigate('/login');
+            })
+            .finally(() => {
+                if (isMounted) {
+                    setIsProcessing(false);
+                }
             });
 
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [searchParams, navigate, isProcessing]);
 
     return (
         <div className="min-h-screen bg-[#17171C] text-white font-sans flex items-center justify-center">
@@ -57,4 +67,4 @@ export default function KakaoCallback() {
             </div>
         </div>
     );
-} 
+}
