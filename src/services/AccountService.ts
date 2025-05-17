@@ -8,10 +8,12 @@ interface MyProfile {
 const BACKEND_API = process.env.REACT_APP_BACKEND_API;
 const AccountService = {
   saveMyProfile: async ({ bio }: MyProfile): Promise<void> => {
+    const user = AuthService.getUser();
+
     const response = await fetch(`${BACKEND_API}/oauth/me/profile`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${user?.token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ profile: bio })
