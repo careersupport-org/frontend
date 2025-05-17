@@ -13,6 +13,7 @@ interface SidebarProps {
   isLoadingResources: boolean;
   roadMapId: string;
   setBookMarkedSteps: Dispatch<SetStateAction<StepPreview[]>>;
+  onStepUpdate: (updatedStep: RoadMapStep) => void;
 }
 
 // URL 미리보기용 임시 컴포넌트
@@ -49,7 +50,7 @@ const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
   );
 };
 
-export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId, setBookMarkedSteps }: SidebarProps) {
+export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId, setBookMarkedSteps, onStepUpdate }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
   const [isCreatingSubRoadmap, setIsCreatingSubRoadmap] = useState(false);
   const [isBookmarking, setIsBookmarking] = useState(false);
@@ -122,6 +123,23 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
   const handleNavigateToSubRoadmap = () => {
     if (!selectedStep?.subRoadMapId) return;
     navigate(`/roadmap/${selectedStep.subRoadMapId}`);
+  };
+
+  const handleDeleteSubRoadmap = async () => {
+    if (!selectedStep?.subRoadMapId) return;
+    if (!window.confirm('정말로 이 서브 로드맵을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await RoadMapService.getInstance().deleteRoadmap(selectedStep.subRoadMapId);
+      const updatedStep = { ...selectedStep, subRoadMapId: null };
+      onStepUpdate(updatedStep);
+      alert('서브 로드맵이 삭제되었습니다.');
+    } catch (error) {
+      console.error('Failed to delete sub roadmap:', error);
+      alert('서브 로드맵 삭제에 실패했습니다.');
+    }
   };
 
   const handleBookmark = async () => {
@@ -244,15 +262,26 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
             </div>
             <div className="border-t border-[#3A3A42] pt-6">
               {selectedStep.subRoadMapId ? (
-                <button
-                  onClick={handleNavigateToSubRoadmap}
-                  className="w-full py-3 px-4 rounded-lg bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span>서브 로드맵으로 이동</span>
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={handleNavigateToSubRoadmap}
+                    className="w-full py-3 px-4 rounded-lg bg-[#5AC8FA] text-[#1A1A20] hover:bg-[#4AB8EA] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span>서브 로드맵으로 이동</span>
+                  </button>
+                  <button
+                    onClick={handleDeleteSubRoadmap}
+                    className="w-full py-3 px-4 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span>서브 로드맵 삭제</span>
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={handleCreateSubRoadmap}

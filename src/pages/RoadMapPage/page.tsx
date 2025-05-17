@@ -195,6 +195,20 @@ export default function RoadMapPage() {
     navigate({ pathname: `/roadmap/${id}`, search: searchParams.toString() ? `?${searchParams.toString()}` : '' }, { replace: true });
   };
 
+  const handleStepUpdate = (updatedStep: RoadMapStep) => {
+    if (!roadMap) return;
+    
+    const updatedSteps = roadMap.steps.map(step => 
+      step.id === updatedStep.id ? updatedStep : step
+    );
+    
+    setRoadMap({
+      ...roadMap,
+      steps: updatedSteps
+    });
+    setSelectedStep(updatedStep);
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-[#1A1A20] text-white p-8">
@@ -397,6 +411,7 @@ export default function RoadMapPage() {
               isLoadingResources={isLoadingResources}
               roadMapId={roadMap.id}
               setBookMarkedSteps={setBookMarkedSteps}
+              onStepUpdate={handleStepUpdate}
             />
             {isEditResourceModalOpen && selectedStep && (
               <EditResourceModal
