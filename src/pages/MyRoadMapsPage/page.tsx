@@ -3,7 +3,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
 import RoadMapService, { RoadMapPreview } from "../../services/RoadmapService";
-
+import { ForbiddenException, UnauthorizedException } from "../../common/exceptions";
 export default function MyRoadMapsPage() {
   const [myRoadmaps, setMyRoadmaps] = useState<RoadMapPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +14,10 @@ export default function MyRoadMapsPage() {
       const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
       setMyRoadmaps(roadmaps);
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
       console.error("로드맵을 불러오는데 실패했습니다:", error);
     } finally {
       setIsLoading(false);
@@ -35,6 +39,14 @@ export default function MyRoadMapsPage() {
       await fetchRoadmaps(); // 로드맵 목록 새로고침
       alert('로드맵이 삭제되었습니다.');
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵만 삭제할 수 있습니다.");
+        return;
+      }
       console.error('로드맵 삭제에 실패했습니다:', error);
       alert('로드맵 삭제에 실패했습니다.');
     }
