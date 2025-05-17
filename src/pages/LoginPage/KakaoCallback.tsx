@@ -32,26 +32,10 @@ export default function KakaoCallback() {
                 // JWT 토큰을 localStorage에 저장
                 localStorage.setItem('token', data.access_token);
 
-                // JWT 토큰으로 사용자 정보 요청
-                return fetch(`${BACKEND_API}/oauth/me`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${data.access_token}`,
-                        'Content-Type': 'application/json',
-                    }
-                });
-            })
-            .then((response) => {
-                if (!isMounted || !response) return;
-                return response.json();
-            })
-            .then((userData) => {
-                if (!isMounted) return;
-
                 // 사용자 정보 저장
                 login({
-                    id: userData.id,
-                    nickname: userData.nickname
+                    id: data.user_id,
+                    nickname: data.nickname
                 });
 
                 // 메인 페이지로 리다이렉트
@@ -67,7 +51,7 @@ export default function KakaoCallback() {
         return () => {
             isMounted = false;
         };
-    }, [login, navigate, searchParams]);
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#17171C] text-white font-sans flex items-center justify-center">
