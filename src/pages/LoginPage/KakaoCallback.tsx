@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthService } from "../../services/AuthService";
 
@@ -9,6 +9,37 @@ export default function KakaoCallback() {
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
     
+    const processKakaoLogin = useCallback(async (code: string) => {
+        if (isProcessing) return;
+        
+        setIsProcessing(true);
+        
+        try {
+            const response = await fetch(`${BACKEND_API}/oauth/kakao/callback?code=${code}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            
+            AuthService.setUser({
+                id: data.user_id,
+                nickname: data.nickname,
+                profileImage: data.profile_image,
+                token: data.access_token
+            });
+            
+            navigate('/');
+        } catch (error) {
+            alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+            navigate('/login');
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [navigate, isProcessing]);
+    
     useEffect(() => {
         const code = searchParams.get('code');
         if (!code) {
@@ -16,48 +47,8 @@ export default function KakaoCallback() {
             return;
         }
         
-        // 이미 처리 중이면 중복 요청 방지
-        if (isProcessing) return;
-        
-        setIsProcessing(true);
-        let isMounted = true;
-
-        // 백엔드로 code 전송
-        fetch(`${BACKEND_API}/oauth/kakao/callback?code=${code}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (!isMounted) return;
-
-                AuthService.setUser({
-                    id: data.user_id,
-                    nickname: data.nickname,
-                    profileImage: data.profile_image,
-                    token: data.access_token
-                });
-
-                navigate('/');
-            })
-            .catch((error) => {
-                if (!isMounted) return;
-
-                alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
-                navigate('/login');
-            })
-            .finally(() => {
-                if (isMounted) {
-                    setIsProcessing(false);
-                }
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, [searchParams, navigate, isProcessing]);
+        processKakaoLogin(code);
+    }, [searchParams, navigate, processKakaoLogin]);
 
     return (
         <div className="min-h-screen bg-[#17171C] text-white font-sans flex items-center justify-center">
