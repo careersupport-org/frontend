@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RoadMapService, { StepPreview } from '../../../services/RoadmapService';
 
-export default function BookmarkTab() {
-  const [bookmarks, setBookmarks] = useState<StepPreview[]>([]);
+export default function BookmarkTab({ bookMarkedSteps, setBookMarkedSteps }: { bookMarkedSteps: StepPreview[], setBookMarkedSteps: (steps: StepPreview[]) => void }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(true);
   const navigate = useNavigate();
@@ -11,8 +10,8 @@ export default function BookmarkTab() {
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const data = await RoadMapService.getInstance().getBookMarks();
-        setBookmarks(data);
+        const bookmarks = await RoadMapService.getInstance().getBookMarks();
+        setBookMarkedSteps(bookmarks);
       } catch (error) {
         console.error('북마크를 불러오는데 실패했습니다:', error);
       } finally {
@@ -21,7 +20,7 @@ export default function BookmarkTab() {
     };
 
     fetchBookmarks();
-  }, []);
+  }, [setBookMarkedSteps]);
 
   return (
     <div className="bg-[#1D1D22] rounded-2xl overflow-hidden">
@@ -40,16 +39,15 @@ export default function BookmarkTab() {
         </svg>
       </div>
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-[400px]' : 'max-h-0'
-        }`}
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[400px]' : 'max-h-0'
+          }`}
       >
         <div className="p-6">
           {isLoading ? (
             <div className="flex justify-center items-center h-32">
               <div className="text-[#5AC8FA] animate-pulse">북마크를 불러오는 중...</div>
             </div>
-          ) : bookmarks.length === 0 ? (
+          ) : bookMarkedSteps.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-[#A0A0B0] mb-2">아직 북마크한 단계가 없습니다</div>
               <div className="text-sm text-[#A0A0B0]">
@@ -58,7 +56,7 @@ export default function BookmarkTab() {
             </div>
           ) : (
             <div className="space-y-3">
-              {bookmarks.map((bookmark) => (
+              {bookMarkedSteps.map((bookmark) => (
                 <div
                   key={bookmark.roadMapId + '-' + bookmark.stepId}
                   className="bg-[#23232A] rounded-lg p-4 cursor-pointer hover:bg-[#2A2A32] transition"

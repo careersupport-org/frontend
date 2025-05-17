@@ -1,21 +1,48 @@
 interface MyProfile {
-    bio: string;
-  }
-  
-  const AccountService = {
-    saveMyProfile: async ({ bio }: MyProfile): Promise<void> => {
-      // 실제 API 연동 시 여기에 fetch/axios 코드 작성
-      // 예시: await axios.post('/api/profile', { bio });
-      return Promise.resolve(); // 임시 성공 처리
-    },
+  bio: string;
+}
 
-    getMyProfile: async (): Promise<MyProfile> => {
-      
-      const myProfile = {
-        bio: "안녕하세요. 저는 프론트엔드 개발자입니다.",
-      }  
-      return Promise.resolve(myProfile); // 임시 성공 처리
-    },
-  };
-  
-  export default AccountService
+
+const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+const AccountService = {
+  saveMyProfile: async ({ bio }: MyProfile): Promise<void> => {
+    const response = await fetch(`${BACKEND_API}/oauth/me/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ profile: bio })
+    });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to update profile'));
+    }
+
+    if (response.status === 200) {
+      return Promise.resolve()
+    }
+
+    return Promise.reject(new Error('Failed to update profile'));
+  },
+
+  getMyProfile: async (): Promise<MyProfile> => {
+    const response = await fetch(`${BACKEND_API}/oauth/me/profile`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to fetch profile'));
+    }
+
+    const data = await response.json()
+    const myProfile = {
+      bio: data["bio"],
+    }
+    return Promise.resolve(myProfile);
+  },
+};
+
+export default AccountService

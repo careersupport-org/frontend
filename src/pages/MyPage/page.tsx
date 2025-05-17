@@ -53,7 +53,6 @@ export default function MyPage() {
           <div className="mb-10 p-6 rounded-xl bg-[#23232A] flex flex-col gap-2">
             <div className="text-2xl font-semibold text-[#E0E0E6] mb-2">기본 정보</div>
             <div className="text-lg"><span className="text-[#A0A0B0]">이름</span>: <span className="font-semibold text-[#E0E0E6]">{user?.nickname}</span></div>
-            <div className="text-lg"><span className="text-[#A0A0B0]">이메일</span>: <span className="font-semibold text-[#E0E0E6]">{user?.email}</span></div>
           </div>
 
           {/* 자기소개 */}
@@ -84,8 +83,8 @@ export default function MyPage() {
                     onClick={() => navigate(`/roadmap/${roadmap.id}`)}
                   >
                     <div className="text-lg font-bold text-[#5AC8FA] mb-2">{roadmap.title}</div>
-                    <div className="text-[#A0A0B0] text-sm">생성일: {new Date(roadmap.createdAt).toLocaleDateString()}</div>
-                    <div className="text-[#A0A0B0] text-sm">수정일: {new Date(roadmap.updatedAt).toLocaleDateString()}</div>
+                    <div className="text-[#A0A0B0] text-sm">생성일: {roadmap["createdAt"]}</div>
+                    <div className="text-[#A0A0B0] text-sm">수정일: {roadmap["updatedAt"]}</div>
                   </div>
                 ))}
               </div>
