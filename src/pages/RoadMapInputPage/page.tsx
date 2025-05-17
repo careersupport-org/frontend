@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import AccountService from "../../services/AccountService";
 import RoadMapService from "../../services/RoadmapService";
 import { Link, useNavigate } from "react-router-dom";
+import { BadRequestException, UnauthorizedException } from "../../common/exceptions";
 
 export default function RoadMapInputPage() {
   const [bioExists, setBioExists] = useState<boolean | null>(null);
@@ -29,7 +30,15 @@ export default function RoadMapInputPage() {
     try {
       const id = await roadmapService.createRoadMap(job, etc);
       navigate(`/roadmap/${id}`);
-    } catch (err) {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof BadRequestException) {
+        alert("로드맵은 서브 로드맵을 포함해서 3개만 생성가능합니다.");
+        return;
+      }
       alert("로드맵 생성에 실패했습니다.");
     } finally {
       setIsLoading(false);
