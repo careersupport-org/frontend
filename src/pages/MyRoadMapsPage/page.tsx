@@ -9,20 +9,36 @@ export default function MyRoadMapsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRoadmaps = async () => {
-      try {
-        const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
-        setMyRoadmaps(roadmaps);
-      } catch (error) {
-        console.error("로드맵을 불러오는데 실패했습니다:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchRoadmaps = async () => {
+    try {
+      const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
+      setMyRoadmaps(roadmaps);
+    } catch (error) {
+      console.error("로드맵을 불러오는데 실패했습니다:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRoadmaps();
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent, roadmapId: string) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
+    if (!window.confirm('정말로 이 로드맵을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await RoadMapService.getInstance().deleteRoadmap(roadmapId);
+      await fetchRoadmaps(); // 로드맵 목록 새로고침
+      alert('로드맵이 삭제되었습니다.');
+    } catch (error) {
+      console.error('로드맵 삭제에 실패했습니다:', error);
+      alert('로드맵 삭제에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#17171C] text-white font-sans flex flex-col">
@@ -58,7 +74,7 @@ export default function MyRoadMapsPage() {
               {myRoadmaps.map((roadmap) => (
                 <div
                   key={roadmap.id}
-                  className="bg-[#1D1D22] rounded-2xl p-6 cursor-pointer hover:bg-[#23232A] transition"
+                  className="bg-[#1D1D22] rounded-2xl p-6 cursor-pointer hover:bg-[#23232A] transition relative group"
                   onClick={() => navigate(`/roadmap/${roadmap.id}`)}
                 >
                   <div className="text-xl font-bold text-[#5AC8FA] mb-3">{roadmap.title}</div>
@@ -70,6 +86,14 @@ export default function MyRoadMapsPage() {
                       수정일: {new Date(roadmap.updatedAt).toLocaleDateString()}
                     </div>
                   </div>
+                  <button
+                    onClick={(e) => handleDelete(e, roadmap.id)}
+                    className="absolute top-4 right-4 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>

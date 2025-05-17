@@ -267,6 +267,22 @@ class RoadMapService {
 
     return Promise.resolve();
   }
+
+  public async deleteRoadmap(roadmapId: string): Promise<void> {
+    const user = AuthService.getUser();
+    const response = await fetch(`${BACKEND_API}/roadmap/${roadmapId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${user?.token}`
+      }
+    });
+
+    if (!response.ok) {
+      return Promise.reject(new Error('Failed to delete roadmap'));
+    }
+
+    return Promise.resolve();
+  }
 }
 
 export default RoadMapService;
