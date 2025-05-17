@@ -1,5 +1,5 @@
 import { AuthService } from "./AuthService";
-
+import { UnauthorizedException } from "../common/exceptions";
 interface MyProfile {
   bio: string;
 }
@@ -16,6 +16,10 @@ const AccountService = {
       },
       body: JSON.stringify({ profile: bio })
     });
+
+    if (response.status === 401) {
+      return Promise.reject(new UnauthorizedException());
+    }
 
     if (!response.ok) {
       return Promise.reject(new Error('Failed to update profile'));

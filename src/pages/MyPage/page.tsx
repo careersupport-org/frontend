@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import AccountService from "../../services/AccountService";
 import RoadMapService, { RoadMapPreview } from "../../services/RoadmapService";
 import { AuthService } from "../../services/AuthService";
+import { ForbiddenException, UnauthorizedException } from "../../common/exceptions";
 
 export default function MyPage() {
   const user = AuthService.getUser();
@@ -16,7 +17,13 @@ export default function MyPage() {
     try {
       const roadmaps = await RoadMapService.getInstance().getMyRoadMaps();
       setMyRoadmaps(roadmaps);
-    } catch (error) {
+    } 
+    catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      alert("로드맵을 불러오는데 실패했습니다.");
       console.error("로드맵을 불러오는데 실패했습니다:", error);
     }
   };
@@ -39,7 +46,11 @@ export default function MyPage() {
     try {
       await AccountService.saveMyProfile({ bio });
       alert("자기소개 저장에 성공했습니다.");
-    } catch (err) {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
       alert("자기소개 저장에 실패했습니다.");
     }
   };
@@ -51,16 +62,24 @@ export default function MyPage() {
   };
 
   const handleDelete = async (e: React.MouseEvent, roadmapId: string) => {
-    e.stopPropagation(); // 이벤트 버블링 방지
+    e.stopPropagation(); 
     if (!window.confirm('정말로 이 로드맵을 삭제하시겠습니까?')) {
       return;
     }
 
     try {
       await RoadMapService.getInstance().deleteRoadmap(roadmapId);
-      await fetchRoadmaps(); // 로드맵 목록 새로고침
+      await fetchRoadmaps();
       alert('로드맵이 삭제되었습니다.');
     } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        alert("로그인 후 이용 가능한 서비스입니다.");
+        navigate("/login");
+      }
+      if (error instanceof ForbiddenException) {
+        alert("자신의 로드맵만 삭제할 수 있습니다.");
+        return;
+      }
       console.error('로드맵 삭제에 실패했습니다:', error);
       alert('로드맵 삭제에 실패했습니다.');
     }
