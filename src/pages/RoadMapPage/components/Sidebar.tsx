@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { BadRequestException, UnauthorizedException } from '../../../common/exceptions';
 import { ForbiddenException } from '../../../common/exceptions';
+import Microlink from '@microlink/react';
+
 
 interface SidebarProps {
   selectedStep: RoadMapStep | null;
@@ -17,40 +19,6 @@ interface SidebarProps {
   setBookMarkedSteps: Dispatch<SetStateAction<StepPreview[]>>;
   onStepUpdate: (updatedStep: RoadMapStep) => void;
 }
-
-// URL 미리보기용 임시 컴포넌트
-interface EmbedPreviewProps {
-  url: string;
-}
-
-const EmbedPreview: React.FC<EmbedPreviewProps> = ({ url }) => {
-  const [meta, setMeta] = useState<{ title?: string; description?: string; image?: string }>({});
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true)
-    setMeta({ title: url });
-    setLoading(false)
-  }, [url]);
-
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block p-4 bg-[#1A1A20] rounded-lg hover:bg-[#2A2A32] transition-colors flex gap-4 items-center"
-      style={{ minHeight: 80 }}
-    >
-      <div className="w-20 h-20 bg-[#23232A] flex-shrink-0 flex items-center justify-center text-2xl text-[#5AC8FA]">
-        <span>🔗</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[#E0E0E6] font-medium mb-1 truncate">{loading ? '로딩 중...' : meta.title || url}</div>
-        <div className="text-[#A0A0B0] text-sm line-clamp-2">{meta.description || url}</div>
-      </div>
-    </a>
-  );
-};
 
 export default function Sidebar({ selectedStep, onClose, onEditResource, learningResources, isLoadingResources, roadMapId, setBookMarkedSteps, onStepUpdate }: SidebarProps) {
   const [details, setDetails] = useState<string[]>([]);
@@ -287,7 +255,19 @@ export default function Sidebar({ selectedStep, onClose, onEditResource, learnin
               ) : (
                 <div className="space-y-4">
                   {learningResources.map((resource) => (
-                    <EmbedPreview key={resource.id} url={resource.url} />
+                    <Microlink 
+                    url={resource.url} 
+                    style={{ 
+                      width: '100%',      
+                      borderRadius: '12px',      
+                      backgroundColor: '#23232A', 
+                      color: '#FFFFFF',          
+                      border: '1px solid #3A3A42',
+                      margin: '0 auto',
+                      maxWidth: 'none',
+                      marginBottom: '16px',
+                    }}
+                  />
                   ))}
                 </div>
               )}
